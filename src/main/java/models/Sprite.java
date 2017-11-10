@@ -10,9 +10,9 @@ import javafx.scene.image.ImageView;
  */
 public class Sprite extends ImageView {
 
-    double prevX;
-    double prevY;
-    Property<Image> imageProperty = new SimpleObjectProperty<>();
+    private double prevX;
+    private double prevY;
+    private Property<Image> imageProperty = new SimpleObjectProperty<>();
 
     /**
      * Allocates a new Sprite object using the given image.

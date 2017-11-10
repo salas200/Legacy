@@ -19,6 +19,8 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Achmed Waly
@@ -511,7 +513,12 @@ public class Character extends Sprite {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        byte[] sha512sum = messageDigest.digest(password.getBytes());
+        byte[] sha512sum = new byte[0];
+        if (messageDigest != null) {
+            sha512sum = messageDigest.digest(password.getBytes());
+        } else {
+            Logger.getGlobal().log(Level.SEVERE, "Hashing of password returned null!");
+        }
         return String.format("%032X", new BigInteger(1, sha512sum));
     }
 

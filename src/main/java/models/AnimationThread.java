@@ -1,7 +1,6 @@
 package models;
 
 import javafx.animation.Animation;
-import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -9,7 +8,6 @@ import javafx.event.EventHandler;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
 import sun.misc.Launcher;
-import sun.rmi.runtime.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,11 +21,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 public class AnimationThread extends Thread {
 
-    private final String BASE_RSC = "resources/icons/base/";
+    private final String BASE_RSC = "icons/base/";
 
     public final String NORTH_ANIMATED = BASE_RSC.concat("north_animated");
     public final String NORTH_WALKING = BASE_RSC.concat("north_walking");
@@ -67,12 +64,7 @@ public class AnimationThread extends Thread {
         for (int i = 0; i < imageList.size() - 1; i++) {
 
             int finalI = i;
-            timeline.getKeyFrames().add(new KeyFrame(Duration.millis(i * 125), new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    target.setImage(imageList.get(finalI));
-                }
-            }));
+            timeline.getKeyFrames().add(new KeyFrame(Duration.millis(i * 125), event -> target.setImage(imageList.get(finalI))));
 
         }
 
@@ -121,7 +113,7 @@ public class AnimationThread extends Thread {
         imageList.clear();
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        int imageCount = 0;
+        int imageCount = -1; // Jar file counts the folder as an entry aswell, to offset start at -1
 
         try {
             jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
@@ -176,6 +168,6 @@ public class AnimationThread extends Thread {
 
     public void setDirection(String direction) {
         this.direction = direction;
-        animation(direction);
+        imageList = animation(direction);
     }
 }

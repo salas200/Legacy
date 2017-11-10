@@ -18,15 +18,16 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         Parent root;
         try {
-            root = FXMLLoader.load(getClass().getResource("resources/Main.fxml"));
+            root = FXMLLoader.load(getClass().getResource("Main.fxml"));
             primaryStage.setTitle("Legacy");
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("resources/Styles.css").toString());
+            scene.getStylesheets().add(getClass().getResource("Styles.css").toString());
             primaryStage.setScene(scene);
             primaryStage.setMaximized(true);
             primaryStage.show();
         } catch (IOException | NullPointerException e) {
-            Logger.getGlobal().log(Level.SEVERE,e.getMessage());
+            e.printStackTrace();
+            //Logger.getGlobal().log(Level.SEVERE,e.getMessage());
             Platform.exit();
         }
 

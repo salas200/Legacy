@@ -2,16 +2,6 @@ package models;
 
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.DoubleProperty;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Pane;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class MovementThread extends AnimationTimer {
 
