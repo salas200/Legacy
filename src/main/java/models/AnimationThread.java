@@ -113,7 +113,7 @@ public class AnimationThread extends Thread {
         imageList.clear();
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        int imageCount = -1; // Jar file counts the folder as an entry aswell, to offset start at -1
+        int imageCount = 0;
 
         try {
             jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
@@ -127,6 +127,7 @@ public class AnimationThread extends Thread {
                         imageCount++;
                     }
                 }
+                imageCount--;
                 jar.close();
             } else { // Run with IDE
                 final URL url = Launcher.getLauncher().getClassLoader().getResource(direction);
