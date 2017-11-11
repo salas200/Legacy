@@ -29,6 +29,8 @@ public class Character extends Sprite {
 
     private StringProperty name = new SimpleStringProperty();
     private String password;
+    private IntegerProperty currentLocationRow = new SimpleIntegerProperty();
+    private IntegerProperty currentLocationColumn = new SimpleIntegerProperty();
     private DoubleProperty health = new SimpleDoubleProperty();
     private DoubleProperty trueAge = new SimpleDoubleProperty();
     private DoubleProperty physAge = new SimpleDoubleProperty();
@@ -73,7 +75,7 @@ public class Character extends Sprite {
      */
     public Character(Image image, String name, String password) {
         super(image);
-        this.setImage(image);
+        setImage(image);
         this.name.set(name);
         this.password = hashPassword(password);
         health.set(100);
@@ -110,6 +112,7 @@ public class Character extends Sprite {
      */
     public Character(Image image, String name) {
         super(image);
+        setImage(image);
         this.name.set(name);
         health.set(100);
         trueAge.set(21);
@@ -370,6 +373,30 @@ public class Character extends Sprite {
 
     public List<Property<?>> getPropertyList() {
         return propertyList;
+    }
+
+    public int getCurrentLocationRow() {
+        return currentLocationRow.get();
+    }
+
+    public void setCurrentLocationRow(int currentLocationRow) {
+        this.currentLocationRow.set(currentLocationRow);
+    }
+
+    public void setCurrentLocationColumn(int currentLocationColumn) {
+        this.currentLocationColumn.set(currentLocationColumn);
+    }
+
+    public IntegerProperty currentLocationRowProperty() {
+        return currentLocationRow;
+    }
+
+    public int getCurrentLocationColumn() {
+        return currentLocationColumn.get();
+    }
+
+    public IntegerProperty currentLocationColumnProperty() {
+        return currentLocationColumn;
     }
 
     /**

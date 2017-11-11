@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -13,7 +18,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.TextFlow?>
 
-<BorderPane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="518.0" minWidth="808.0" xmlns="http://javafx.com/javafx/8.0.152" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainController">
+<BorderPane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="518.0" minWidth="808.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainController">
    <top>
        <MenuBar BorderPane.alignment="CENTER">
           <menus>
@@ -46,11 +51,7 @@
                <Insets />
            </BorderPane.margin>
           <items>
-              <Pane fx:id="gamePane" focusTraversable="true" BorderPane.alignment="TOP_LEFT" SplitPane.resizableWithParent="false">
-              <BorderPane.margin>
-                  <Insets left="5.0" top="5.0" />
-              </BorderPane.margin>
-              </Pane>
+            <ScrollPane fx:id="gameScrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" vbarPolicy="NEVER" />
               <ScrollPane fx:id="chatScrollPane" fitToHeight="true" fitToWidth="true" focusTraversable="false" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" vvalue="1.0">
                  <content>
                      <TextFlow fx:id="localChatBox" focusTraversable="false" />

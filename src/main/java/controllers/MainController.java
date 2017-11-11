@@ -1,12 +1,11 @@
 package controllers;
 
 import javafx.application.Platform;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -47,7 +46,7 @@ public class MainController implements Initializable {
     private Tab skillsTab;
 
     @FXML
-    private Pane gamePane;
+    private ScrollPane gameScrollPane;
 
     @FXML
     private ScrollPane oocScrollPane;
@@ -79,13 +78,15 @@ public class MainController implements Initializable {
     @FXML
     private ScrollPane chatScrollPane;
 
+    private GridPane gamePane = new GridPane();
+
     private final double STEP = 1;
 
     private final Image GRASS = new Image(getClass().getResource("/icons/grass.png").toString());
     private final Image STATIC_BASE = new Image(getClass().getResource("/icons/base/south_animated/0.png").toString());
 
-    private DoubleProperty trueHeight = new SimpleDoubleProperty(550);
-    private DoubleProperty trueWidth = new SimpleDoubleProperty(880);
+    private DoubleProperty trueHeight = new SimpleDoubleProperty(600);
+    private DoubleProperty trueWidth = new SimpleDoubleProperty(900);
 
     private Character player1;
     private Character dummy1;
@@ -100,25 +101,37 @@ public class MainController implements Initializable {
     private AnimationThread animationThread;
     private MovementThread movementThread;
 
+    private IntegerProperty currentLocationRow = new SimpleIntegerProperty();
+    private IntegerProperty currentLocationColumn = new SimpleIntegerProperty();
+
     private boolean goNorth, goSouth, goWest, goEast;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        gamePane.setMinSize(900, 600);
-        gamePane.setMaxSize(900, 600);
+        gamePane.setGridLinesVisible(true);
 
-        gamePane.minWidthProperty().addListener((observable, oldValue, newValue) -> trueWidth.set(newValue.doubleValue() - 20));
-        gamePane.minHeightProperty().addListener((observable, oldValue, newValue) -> trueHeight.set(newValue.doubleValue() - 50));
+        //gamePane.setMinSize(900, 600);
+        //gamePane.setPrefSize(900, 600);
+        //gamePane.setMaxSize(900, 600);
+        //gameScrollPane.setPrefSize(900, 600);
+        //gameScrollPane.setPrefViewportHeight(600);
+        //gameScrollPane.setPrefViewportWidth(900);
 
-        gamePane.setBackground(new Background(new BackgroundImage(GRASS, BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT,
-                BackgroundSize.DEFAULT)));
+        gameScrollPane.setMinSize(900,600);
+        gameScrollPane.setMaxSize(900, 600);
+
+        //gameScrollPane.prefWidthProperty().addListener((observable, oldValue, newValue) -> trueWidth.set(newValue.doubleValue()));
+        //gameScrollPane.prefHeightProperty().addListener((observable, oldValue, newValue) -> trueHeight.set(newValue.doubleValue()));
+
+        createMap(100, gamePane);
+        //gamePane.setBackground(new Background(new BackgroundImage(GRASS, BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT,BackgroundSize.DEFAULT)));
 
         dummy1 = new Character(STATIC_BASE,"dummy");
 
         player1 = new Character(STATIC_BASE, "shyzus", "");
 
-        player1.setLocation(50, 50);
-        dummy1.setLocation(200,200);
+        //player1.setLocation(50, 50);
+        //dummy1.setLocation(200,200);
 
         // Give each property in the propertyList of the player a changeListener (NOTE ONLY PROPERTIES VISIBLE TO THE PLAYER)
         for (Property property : player1.getPropertyList()) {
@@ -128,6 +141,9 @@ public class MainController implements Initializable {
         // Resize scrollpane length as their chatbox height increases.
         oocScrollPane.vvalueProperty().bind(globalChatBox.heightProperty());
         chatScrollPane.vvalueProperty().bind(localChatBox.heightProperty());
+
+        player1.currentLocationColumnProperty().bindBidirectional(currentLocationColumn);
+        player1.currentLocationRowProperty().bindBidirectional(currentLocationRow);
 
         // Add listener for collisions
         playerXListener = player1.createPosChangeListener(player1, dummy1, STEP, trueHeight.getValue(), trueWidth.getValue());
@@ -183,30 +199,62 @@ public class MainController implements Initializable {
         optionsTabContent.getChildren().addAll(sayVerb, roleplayVerb, oocVerb, helpVerb);
         statsTabContent.getChildren().setAll(player1.getStats());
 
-        gamePane.getChildren().addAll(player1, dummy1);
+        gamePane.add(player1,0,0);
 
         animationThread = new AnimationThread("player1",player1, null);
         animationThread.start();
 
-        movementThread = new MovementThread(player1, animationThread, STEP, trueHeight, trueWidth);
+        movementThread = new MovementThread(player1, animationThread, STEP, trueHeight, trueWidth, gamePane);
 
         gamePane.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case UP:
                     movementThread.setGoNorth(true);
+/*                    if(currentLocationRow > 0){
+                        //currentLocationColumn++;
+                        currentLocationRow--;
+                        gamePane.getChildren().remove(player1);
+                        gamePane.add(player1, currentLocationColumn, currentLocationRow);
+
+                    }*/
+
                     break;
                 case LEFT:
                     movementThread.setGoWest(true);
+                   /* if(currentLocationColumn > 0){
+                        currentLocationColumn--;
+                        //currentLocationRow--;
+                        gamePane.getChildren().remove(player1);
+                        gamePane.add(player1, currentLocationColumn, currentLocationRow);
+
+                    }*/
+
                     break;
                 case DOWN:
                     movementThread.setGoSouth(true);
+                    /*if(currentLocationRow < 100){
+                        //currentLocationColumn--;
+                        currentLocationRow++;
+                        gamePane.getChildren().remove(player1);
+                        gamePane.add(player1, currentLocationColumn, currentLocationRow);
+
+                    }*/
+
                     break;
                 case RIGHT:
                     movementThread.setGoEast(true);
+                    /*if(currentLocationColumn < 100){
+                        currentLocationColumn++;
+                        //currentLocationRow--;
+                        gamePane.getChildren().remove(player1);
+                        gamePane.add(player1, currentLocationColumn, currentLocationRow);
+
+                    }*/
+
                     break;
             }
         });
-
+        gameScrollPane.setOnKeyPressed(event -> event.consume());
         gamePane.setOnKeyReleased(event -> {
             switch (event.getCode()) {
                 case UP:
@@ -241,6 +289,8 @@ public class MainController implements Initializable {
         globalChatBox.setOnMouseClicked(event -> Platform.runLater(gamePane::requestFocus));
 
         Platform.runLater(gamePane::requestFocus);
+
+        gameScrollPane.setContent(gamePane);
     }
 
     /**
@@ -354,6 +404,13 @@ public class MainController implements Initializable {
             updateListeners();
         } else {
             dialog.close();
+        }
+    }
+
+    private void createMap(int size, GridPane gamePane){
+        for (int i = 0; i < size; i++) {
+            gamePane.getRowConstraints().add(new RowConstraints(32));
+            gamePane.getColumnConstraints().add(new ColumnConstraints(32));
         }
     }
 
