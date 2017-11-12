@@ -1,8 +1,10 @@
 package controllers;
 
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
+import javafx.event.Event;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
 import javafx.geometry.BoundingBox;
@@ -22,6 +24,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.util.Pair;
 import models.AnimationThread;
 import models.Character;
@@ -108,15 +111,6 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        gamePane.setGridLinesVisible(true);
-
-        //gamePane.setMinSize(900, 600);
-        //gamePane.setPrefSize(900, 600);
-        //gamePane.setMaxSize(900, 600);
-        //gameScrollPane.setPrefSize(900, 600);
-        //gameScrollPane.setPrefViewportHeight(600);
-        //gameScrollPane.setPrefViewportWidth(900);
-
         gameScrollPane.setMinSize(900,600);
         gameScrollPane.setMaxSize(900, 600);
 
@@ -149,20 +143,20 @@ public class MainController implements Initializable {
         playerXListener = player1.createPosChangeListener(player1, dummy1, STEP, trueHeight.getValue(), trueWidth.getValue());
         playerYListener = player1.createPosChangeListener(player1, dummy1, STEP, trueHeight.getValue(), trueWidth.getValue());
 
-        player1.xProperty().addListener((observable, oldValue, newValue) -> {
-            Text statLocation = new Text("Location: (" + newValue.intValue() + ", " + (int) player1.getY() + ")\n");
+        player1.currentLocationColumnProperty().addListener((observable, oldValue, newValue) -> {
+            Text statLocation = new Text("Location: (" + newValue.intValue() + ", " + player1.getCurrentLocationRow() + ")\n");
             statLocation.setFill(Color.WHITE);
             statsTabContent.getChildren().set(1, statLocation);
         });
 
-        player1.yProperty().addListener((observable, oldValue, newValue) -> {
-            Text statLocation = new Text("Location: (" + (int) player1.getX() + ", " + newValue.intValue() + ")\n");
+        player1.currentLocationRowProperty().addListener((observable, oldValue, newValue) -> {
+            Text statLocation = new Text("Location: (" + player1.getCurrentLocationColumn() + ", " + newValue.intValue() + ")\n");
             statLocation.setFill(Color.WHITE);
             statsTabContent.getChildren().set(1, statLocation);
         });
 
-        player1.xProperty().addListener(playerXListener);
-        player1.yProperty().addListener(playerYListener);
+        player1.currentLocationColumnProperty().addListener(playerXListener);
+        player1.currentLocationRowProperty().addListener(playerYListener);
 
         //Intro message
         introLocal = new Text("Welcome to the Legacy Demo!\n");
@@ -210,51 +204,23 @@ public class MainController implements Initializable {
             switch (event.getCode()) {
                 case UP:
                     movementThread.setGoNorth(true);
-/*                    if(currentLocationRow > 0){
-                        //currentLocationColumn++;
-                        currentLocationRow--;
-                        gamePane.getChildren().remove(player1);
-                        gamePane.add(player1, currentLocationColumn, currentLocationRow);
-
-                    }*/
-
                     break;
                 case LEFT:
                     movementThread.setGoWest(true);
-                   /* if(currentLocationColumn > 0){
-                        currentLocationColumn--;
-                        //currentLocationRow--;
-                        gamePane.getChildren().remove(player1);
-                        gamePane.add(player1, currentLocationColumn, currentLocationRow);
-
-                    }*/
-
                     break;
                 case DOWN:
                     movementThread.setGoSouth(true);
-                    /*if(currentLocationRow < 100){
-                        //currentLocationColumn--;
-                        currentLocationRow++;
-                        gamePane.getChildren().remove(player1);
-                        gamePane.add(player1, currentLocationColumn, currentLocationRow);
-
-                    }*/
-
                     break;
                 case RIGHT:
                     movementThread.setGoEast(true);
-                    /*if(currentLocationColumn < 100){
-                        currentLocationColumn++;
-                        //currentLocationRow--;
-                        gamePane.getChildren().remove(player1);
-                        gamePane.add(player1, currentLocationColumn, currentLocationRow);
-
-                    }*/
-
                     break;
             }
         });
-        gameScrollPane.setOnKeyPressed(event -> event.consume());
+
+        gamePane.setOnScroll(Event::consume);
+        gameScrollPane.setOnKeyPressed(Event::consume);
+
+
         gamePane.setOnKeyReleased(event -> {
             switch (event.getCode()) {
                 case UP:
@@ -401,7 +367,7 @@ public class MainController implements Initializable {
 
             gamePane.setMinSize(widthValue, heightValue);
             gamePane.setMaxSize(widthValue, heightValue);
-            updateListeners();
+            //updateListeners();
         } else {
             dialog.close();
         }
@@ -412,21 +378,30 @@ public class MainController implements Initializable {
             gamePane.getRowConstraints().add(new RowConstraints(32));
             gamePane.getColumnConstraints().add(new ColumnConstraints(32));
         }
+
+        for (int i = 0; i < size ; i++) {
+            for (int j = 0; j < size; j++) {
+                Pane tile = new Pane();
+                tile.setBackground(new Background(new BackgroundImage(GRASS, BackgroundRepeat.REPEAT,
+                        BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT,BackgroundSize.DEFAULT)));
+                gamePane.add(tile,i, j);
+            }
+        }
     }
 
     /**
      * Updates the listeners for player and dummy properties.
      */
     private void updateListeners() {
-        player1.xProperty().removeListener(playerXListener);
-        player1.yProperty().removeListener(playerYListener);
+        //player1.xProperty().removeListener(playerXListener);
+        //player1.yProperty().removeListener(playerYListener);
 
 
-        playerXListener = player1.createPosChangeListener(player1, player1, STEP, trueHeight.getValue(), trueWidth.getValue());
-        playerYListener = player1.createPosChangeListener(player1, player1, STEP, trueHeight.getValue(), trueWidth.getValue());
+        //playerXListener = player1.createPosChangeListener(player1, player1, STEP, trueHeight.getValue(), trueWidth.getValue());
+        //playerYListener = player1.createPosChangeListener(player1, player1, STEP, trueHeight.getValue(), trueWidth.getValue());
 
-        player1.xProperty().addListener(playerXListener);
-        player1.yProperty().addListener(playerYListener);
+        //player1.xProperty().addListener(playerXListener);
+        //player1.yProperty().addListener(playerYListener);
 
     }
 }

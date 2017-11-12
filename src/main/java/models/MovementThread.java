@@ -1,6 +1,7 @@
 package models;
 
 import javafx.animation.AnimationTimer;
+import javafx.animation.TranslateTransition;
 import javafx.beans.property.DoubleProperty;
 import javafx.scene.layout.GridPane;
 
@@ -45,6 +46,11 @@ public class MovementThread extends AnimationTimer {
                 gamePane.getChildren().remove(player1);
                 gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
             }
+            try {
+                wait(16);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } else if (goWest) {
             if (player1.getCurrentLocationColumn() - 1 > 0) {
                 if (animationThread.getDirection().equals(animationThread.WEST_WALKING)) {
@@ -67,10 +73,15 @@ public class MovementThread extends AnimationTimer {
                 gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
 
             }
+            try {
+                wait(16);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } else if (goSouth) {
             if (player1.getCurrentLocationRow() + 1 < 100) {
                 if (animationThread.getDirection().equals(animationThread.SOUTH_WALKING)) {
-                    player1.setCurrentLocationRow(player1.getCurrentLocationColumn() + 1);
+                    player1.setCurrentLocationRow(player1.getCurrentLocationRow() + 1);
                     gamePane.getChildren().remove(player1);
                     gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
 
@@ -88,6 +99,11 @@ public class MovementThread extends AnimationTimer {
                 gamePane.getChildren().remove(player1);
                 gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
 
+            }
+            try {
+                wait(16);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         } else if (goEast) {
             if (player1.getCurrentLocationColumn() + 1 < 100) {
@@ -108,6 +124,11 @@ public class MovementThread extends AnimationTimer {
                 player1.setCurrentLocationColumn(0);
                 gamePane.getChildren().remove(player1);
                 gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
+            }
+            try {
+                wait(16);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
