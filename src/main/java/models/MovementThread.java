@@ -29,14 +29,14 @@ public class MovementThread extends AnimationTimer {
         if (goNorth) {
             if (player1.getCurrentLocationRow() - 1 > 0) {
                 if (animationThread.getDirection().equals(animationThread.NORTH_WALKING)) {
-                    player1.setCurrentLocationColumn(player1.getCurrentLocationColumn() - 1);
+                    player1.setCurrentLocationRow(player1.getCurrentLocationRow() - 1);
                     gamePane.getChildren().remove(player1);
                     gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
                 } else {
                     animationThread.interrupt();
                     animationThread.setDirection(animationThread.NORTH_WALKING);
                     animationThread.start();
-                    player1.setCurrentLocationColumn(player1.getCurrentLocationColumn() - 1);
+                    player1.setCurrentLocationRow(player1.getCurrentLocationRow() - 1);
                     gamePane.getChildren().remove(player1);
                     gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
                 }
@@ -46,10 +46,9 @@ public class MovementThread extends AnimationTimer {
                 gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
             }
         } else if (goWest) {
-
             if (player1.getCurrentLocationColumn() - 1 > 0) {
                 if (animationThread.getDirection().equals(animationThread.WEST_WALKING)) {
-                    player1.setCurrentLocationRow(player1.getCurrentLocationRow() - 1);
+                    player1.setCurrentLocationColumn(player1.getCurrentLocationColumn() - 1);
                     gamePane.getChildren().remove(player1);
                     gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
 
@@ -57,7 +56,7 @@ public class MovementThread extends AnimationTimer {
                     animationThread.interrupt();
                     animationThread.setDirection(animationThread.WEST_WALKING);
                     animationThread.start();
-                    player1.setCurrentLocationRow(player1.getCurrentLocationRow() - 1);
+                    player1.setCurrentLocationColumn(player1.getCurrentLocationColumn() - 1);
                     gamePane.getChildren().remove(player1);
                     gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
 
@@ -71,7 +70,7 @@ public class MovementThread extends AnimationTimer {
         } else if (goSouth) {
             if (player1.getCurrentLocationRow() + 1 < 100) {
                 if (animationThread.getDirection().equals(animationThread.SOUTH_WALKING)) {
-                    player1.setCurrentLocationColumn(player1.getCurrentLocationColumn() + 1);
+                    player1.setCurrentLocationRow(player1.getCurrentLocationColumn() + 1);
                     gamePane.getChildren().remove(player1);
                     gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
 
@@ -79,7 +78,7 @@ public class MovementThread extends AnimationTimer {
                     animationThread.interrupt();
                     animationThread.setDirection(animationThread.SOUTH_WALKING);
                     animationThread.start();
-                    player1.setCurrentLocationColumn(player1.getCurrentLocationColumn() + 1);
+                    player1.setCurrentLocationRow(player1.getCurrentLocationRow() + 1);
                     gamePane.getChildren().remove(player1);
                     gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
 
@@ -93,7 +92,7 @@ public class MovementThread extends AnimationTimer {
         } else if (goEast) {
             if (player1.getCurrentLocationColumn() + 1 < 100) {
                 if (animationThread.getDirection().equals(animationThread.EAST_WALKING)) {
-                    player1.setCurrentLocationRow(player1.getCurrentLocationRow() + 1);
+                    player1.setCurrentLocationColumn(player1.getCurrentLocationColumn() + 1);
                     gamePane.getChildren().remove(player1);
                     gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
 
@@ -101,7 +100,7 @@ public class MovementThread extends AnimationTimer {
                     animationThread.interrupt();
                     animationThread.setDirection(animationThread.EAST_WALKING);
                     animationThread.start();
-                    player1.setCurrentLocationRow(player1.getCurrentLocationRow() + 1);
+                    player1.setCurrentLocationColumn(player1.getCurrentLocationColumn() + 1);
                     gamePane.getChildren().remove(player1);
                     gamePane.add(player1, player1.getCurrentLocationColumn(), player1.getCurrentLocationRow());
                 }
