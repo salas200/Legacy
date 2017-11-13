@@ -3,7 +3,9 @@ package models;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
@@ -14,6 +16,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
+import javafx.util.Pair;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -28,6 +31,7 @@ import java.util.logging.Logger;
 public class Character extends Sprite {
 
     private StringProperty name = new SimpleStringProperty();
+    private Pair<IntegerProperty, IntegerProperty> lastLocation = new Pair<>(new SimpleIntegerProperty(), new SimpleIntegerProperty());
     private String password;
     private IntegerProperty currentLocationRow = new SimpleIntegerProperty();
     private IntegerProperty currentLocationColumn = new SimpleIntegerProperty();
@@ -380,10 +384,12 @@ public class Character extends Sprite {
     }
 
     public void setCurrentLocationRow(int currentLocationRow) {
+        this.lastLocation.getKey().setValue(getCurrentLocationRow());
         this.currentLocationRow.set(currentLocationRow);
     }
 
     public void setCurrentLocationColumn(int currentLocationColumn) {
+        this.lastLocation.getValue().setValue(getCurrentLocationColumn());
         this.currentLocationColumn.set(currentLocationColumn);
     }
 
@@ -399,6 +405,14 @@ public class Character extends Sprite {
         return currentLocationColumn;
     }
 
+    public Pair<IntegerProperty, IntegerProperty> getLastLocation() {
+        return lastLocation;
+    }
+
+    public void setLastLocation(Pair<IntegerProperty, IntegerProperty> lastLocation) {
+        this.lastLocation = lastLocation;
+    }
+
     /**
      * Prompts the user with a dialog what they want to say in localChat
      *
@@ -407,6 +421,7 @@ public class Character extends Sprite {
     public void say(TextFlow localChatBox) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setGraphic(null);
+        dialog.initOwner(localChatBox.getScene().getWindow());
         dialog.initModality(Modality.WINDOW_MODAL);
         dialog.setHeaderText(null);
         dialog.setTitle("Say");
@@ -439,6 +454,7 @@ public class Character extends Sprite {
         Font roleplayFont = Font.font("System", FontWeight.BOLD, 14);
         dialog.setGraphic(null);
         dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.initOwner(localChatBox.getScene().getWindow());
         dialog.setHeaderText("Roleplay:");
         dialog.setTitle("Roleplay");
 
@@ -483,6 +499,7 @@ public class Character extends Sprite {
     public void ooc(TextFlow globalChatBox) {
         Font oocFont = Font.font("System", FontWeight.BOLD, 14);
         TextInputDialog dialog = new TextInputDialog();
+        dialog.initOwner(globalChatBox.getScene().getWindow());
         dialog.setGraphic(null);
         dialog.initModality(Modality.WINDOW_MODAL);
         dialog.setHeaderText(null);

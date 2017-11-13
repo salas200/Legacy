@@ -4,11 +4,13 @@ import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -26,10 +28,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.Pair;
-import models.AnimationThread;
+import models.*;
 import models.Character;
-import models.MovementThread;
-import models.Verb;
 
 /**
  * @author Achmed Waly
@@ -86,6 +86,7 @@ public class MainController implements Initializable {
     private final double STEP = 1;
 
     private final Image GRASS = new Image(getClass().getResource("/icons/grass.png").toString());
+    private final Image ROCK = new Image(getClass().getResource("/icons/rock.png").toString());
     private final Image STATIC_BASE = new Image(getClass().getResource("/icons/base/south_animated/0.png").toString());
 
     private DoubleProperty trueHeight = new SimpleDoubleProperty(600);
@@ -109,9 +110,11 @@ public class MainController implements Initializable {
 
     private boolean goNorth, goSouth, goWest, goEast;
 
+    private Terrain terrain = new Terrain(ROCK);
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        gameScrollPane.setMinSize(900,600);
+        gameScrollPane.setMinSize(900, 600);
         gameScrollPane.setMaxSize(900, 600);
 
         //gameScrollPane.prefWidthProperty().addListener((observable, oldValue, newValue) -> trueWidth.set(newValue.doubleValue()));
@@ -120,7 +123,7 @@ public class MainController implements Initializable {
         createMap(100, gamePane);
         //gamePane.setBackground(new Background(new BackgroundImage(GRASS, BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT,BackgroundSize.DEFAULT)));
 
-        dummy1 = new Character(STATIC_BASE,"dummy");
+        dummy1 = new Character(STATIC_BASE, "dummy");
 
         player1 = new Character(STATIC_BASE, "shyzus", "");
 
@@ -140,8 +143,9 @@ public class MainController implements Initializable {
         player1.currentLocationRowProperty().bindBidirectional(currentLocationRow);
 
         // Add listener for collisions
-        playerXListener = player1.createPosChangeListener(player1, dummy1, STEP, trueHeight.getValue(), trueWidth.getValue());
-        playerYListener = player1.createPosChangeListener(player1, dummy1, STEP, trueHeight.getValue(), trueWidth.getValue());
+        // playerXListener = player1.collisionListenerX(player1, gamePane);
+        // playerXListener = player1.createPosChangeListener(player1, dummy1, STEP, trueHeight.getValue(), trueWidth.getValue());
+        // playerYListener = player1.createPosChangeListener(player1, dummy1, STEP, trueHeight.getValue(), trueWidth.getValue());
 
         player1.currentLocationColumnProperty().addListener((observable, oldValue, newValue) -> {
             Text statLocation = new Text("Location: (" + newValue.intValue() + ", " + player1.getCurrentLocationRow() + ")\n");
@@ -155,8 +159,8 @@ public class MainController implements Initializable {
             statsTabContent.getChildren().set(1, statLocation);
         });
 
-        player1.currentLocationColumnProperty().addListener(playerXListener);
-        player1.currentLocationRowProperty().addListener(playerYListener);
+        // player1.currentLocationColumnProperty().addListener(playerXListener);
+        // player1.currentLocationRowProperty().addListener(playerYListener);
 
         //Intro message
         introLocal = new Text("Welcome to the Legacy Demo!\n");
@@ -193,9 +197,9 @@ public class MainController implements Initializable {
         optionsTabContent.getChildren().addAll(sayVerb, roleplayVerb, oocVerb, helpVerb);
         statsTabContent.getChildren().setAll(player1.getStats());
 
-        gamePane.add(player1,0,0);
+        gamePane.add(player1, 0, 0);
 
-        animationThread = new AnimationThread("player1",player1, null);
+        animationThread = new AnimationThread("player1", player1, null);
         animationThread.start();
 
         movementThread = new MovementThread(player1, animationThread, STEP, trueHeight, trueWidth, gamePane, gameScrollPane);
@@ -257,7 +261,11 @@ public class MainController implements Initializable {
         Platform.runLater(gamePane::requestFocus);
 
         gameScrollPane.setContent(gamePane);
+        //System.out.println(gamePane.getChildren().indexOf(pane));
+        //System.out.println(gamePane.getChildren().indexOf(terrain));
+        //System.out.println(gamePane.getChildren().get(10000));
     }
+
 
     /**
      * Display help page in a popup.
@@ -268,14 +276,14 @@ public class MainController implements Initializable {
             Stage stage = new Stage();
             WebView webView = new WebView();
             WebEngine webEngine = webView.getEngine();
-            webEngine.load(getClass().getResource("help/Help.html").toString());
+            webEngine.load(getClass().getResource("/help/Help.html").toString());
+            stage.setOnCloseRequest(event -> webEngine.load(null));
             Scene scene = new Scene(webView);
             stage.setScene(scene);
             stage.setTitle("Help");
             stage.initModality(Modality.WINDOW_MODAL);
             stage.initOwner(gamePane.getScene().getWindow());
             stage.show();
-            stage.setOnCloseRequest(event -> webEngine.load(null));
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -367,41 +375,44 @@ public class MainController implements Initializable {
 
             gamePane.setMinSize(widthValue, heightValue);
             gamePane.setMaxSize(widthValue, heightValue);
-            //updateListeners();
+            updateListeners();
         } else {
             dialog.close();
         }
     }
 
-    private void createMap(int size, GridPane gamePane){
+    private void createMap(int size, GridPane gamePane) {
         for (int i = 0; i < size; i++) {
             gamePane.getRowConstraints().add(new RowConstraints(32));
             gamePane.getColumnConstraints().add(new ColumnConstraints(32));
         }
 
-        for (int i = 0; i < size ; i++) {
+        for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 Pane tile = new Pane();
                 tile.setBackground(new Background(new BackgroundImage(GRASS, BackgroundRepeat.REPEAT,
-                        BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT,BackgroundSize.DEFAULT)));
-                gamePane.add(tile,i, j);
+                        BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
+                gamePane.add(tile, i, j);
             }
         }
+
+        gamePane.add(terrain, 1, 0, 2, 1);
+
     }
 
     /**
      * Updates the listeners for player and dummy properties.
      */
     private void updateListeners() {
-        //player1.xProperty().removeListener(playerXListener);
-        //player1.yProperty().removeListener(playerYListener);
+        player1.xProperty().removeListener(playerXListener);
+        player1.yProperty().removeListener(playerYListener);
 
 
-        //playerXListener = player1.createPosChangeListener(player1, player1, STEP, trueHeight.getValue(), trueWidth.getValue());
-        //playerYListener = player1.createPosChangeListener(player1, player1, STEP, trueHeight.getValue(), trueWidth.getValue());
+        playerXListener = player1.createPosChangeListener(player1, player1, STEP, trueHeight.getValue(), trueWidth.getValue());
+        playerYListener = player1.createPosChangeListener(player1, player1, STEP, trueHeight.getValue(), trueWidth.getValue());
 
-        //player1.xProperty().addListener(playerXListener);
-        //player1.yProperty().addListener(playerYListener);
+        player1.xProperty().addListener(playerXListener);
+        player1.yProperty().addListener(playerYListener);
 
     }
 }

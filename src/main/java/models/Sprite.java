@@ -1,14 +1,19 @@
 package models;
 
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.util.Pair;
 
 /**
  * @author Achmed Waly
  */
 public class Sprite extends ImageView {
+
+    private Pair<IntegerProperty, IntegerProperty> lastLocation = new Pair<>(new SimpleIntegerProperty(), new SimpleIntegerProperty());
 
     private double prevX;
     private double prevY;

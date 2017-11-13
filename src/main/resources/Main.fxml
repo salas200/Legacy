@@ -31,7 +31,7 @@
               </Menu>
               <Menu mnemonicParsing="false" text="Screen">
                  <items>
-                     <MenuItem mnemonicParsing="false" onAction="#resizeGamePane" text="Resize" />
+                     <MenuItem disable="true" mnemonicParsing="false" onAction="#resizeGamePane" text="Resize" />
                  </items>
               </Menu>
               <Menu mnemonicParsing="false" onAction="#getHelp" text="Help">
