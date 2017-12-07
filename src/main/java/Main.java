@@ -26,8 +26,7 @@ public class Main extends Application {
             primaryStage.setMaximized(true);
             primaryStage.show();
         } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
-            //Logger.getGlobal().log(Level.SEVERE,e.getMessage());
+            Logger.getGlobal().log(Level.SEVERE,e.getMessage());
             Platform.exit();
         }
 

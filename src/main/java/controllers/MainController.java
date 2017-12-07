@@ -5,8 +5,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -15,10 +15,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-
-import java.net.URL;
-import java.util.*;
-
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
@@ -28,6 +24,13 @@ import models.AnimationThread;
 import models.Character;
 import models.MovementThread;
 import models.Verb;
+import services.ResourceManager;
+
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 /**
  * @author Achmed Waly
@@ -81,8 +84,8 @@ public class MainController implements Initializable {
 
     private final double STEP = 1;
 
-    private final Image GRASS = new Image(getClass().getResource("/icons/grass.png").toString());
-    private final Image STATIC_BASE = new Image(getClass().getResource("/icons/base/south_animated/0.png").toString());
+    private final Image GRASS = ResourceManager.loadImage("/icons/grass.png");
+    private final Image STATIC_BASE = ResourceManager.loadImage("/icons/base/south_animated/0.png");
 
     private DoubleProperty trueHeight = new SimpleDoubleProperty(550);
     private DoubleProperty trueWidth = new SimpleDoubleProperty(880);
