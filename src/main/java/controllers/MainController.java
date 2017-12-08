@@ -24,7 +24,7 @@ import models.AnimationThread;
 import models.Character;
 import models.MovementThread;
 import models.Verb;
-import services.ResourceManager;
+import services.ResourceService;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -84,8 +84,8 @@ public class MainController implements Initializable {
 
     private final double STEP = 1;
 
-    private final Image GRASS = ResourceManager.loadImage("/icons/grass.png");
-    private final Image STATIC_BASE = ResourceManager.loadImage("/icons/base/south_animated/0.png");
+    private final Image GRASS = ResourceService.loadImage("/icons/grass.png");
+    private final Image STATIC_BASE = ResourceService.loadImage("/icons/base/south_animated/0.png");
 
     private DoubleProperty trueHeight = new SimpleDoubleProperty(550);
     private DoubleProperty trueWidth = new SimpleDoubleProperty(880);
