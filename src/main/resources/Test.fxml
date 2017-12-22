@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import java.lang.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane fx:id="mainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="518.0" minWidth="808.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.TestController">
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#reconnect" text="Reconnect" />
+                        <MenuItem mnemonicParsing="false" onAction="#setMacros" text="Macros" />
+                        <RadioMenuItem mnemonicParsing="false" onAction="#exit" text="Exit" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Screen">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#resizegameCanvas" text="Resize" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" onAction="#getHelp" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#getAbout" text="About" />
+                        <MenuItem mnemonicParsing="false" onAction="#getHelp" text="Help" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <bottom>
+    </bottom>
+    <left>
+        <SplitPane dividerPositions="0.5" focusTraversable="false" orientation="VERTICAL" BorderPane.alignment="TOP_LEFT">
+            <BorderPane.margin>
+                <Insets />
+            </BorderPane.margin>
+            <items>
+            <ScrollPane fx:id="gameScrollPane" hbarPolicy="NEVER" vbarPolicy="NEVER">
+               <content>
+                  <Group fx:id="gameContainer">
+                     <children>
+                        <Canvas fx:id="gameCanvas" height="200.0" width="200.0" />
+                     </children>
+                  </Group>
+               </content>
+            </ScrollPane>
+                <ScrollPane fx:id="chatScrollPane" fitToHeight="true" fitToWidth="true" focusTraversable="false" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" vvalue="1.0">
+                    <content>
+                        <TextFlow fx:id="localChatBox" focusTraversable="false" />
+                    </content>
+                </ScrollPane>
+            </items>
+        </SplitPane>
+    </left>
+    <center>
+        <SplitPane dividerPositions="0.5" focusTraversable="false" orientation="VERTICAL" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets left="5.0" />
+            </BorderPane.margin>
+            <items>
+                <TabPane fx:id="tabPane" focusTraversable="false" minHeight="100.0" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                        <Tab fx:id="statsTab" text="Stats">
+                            <content>
+                                <TextFlow fx:id="statsTabContent" focusTraversable="false" prefHeight="200.0" prefWidth="200.0">
+                                    <opaqueInsets>
+                                        <Insets />
+                                    </opaqueInsets>
+                                    <padding>
+                                        <Insets left="2.0" />
+                                    </padding>
+                                </TextFlow>
+                            </content>
+                        </Tab>
+                        <Tab fx:id="itemsTab" text="Items">
+                            <content>
+                                <TextFlow fx:id="itemsTabContent" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" />
+                            </content>
+                        </Tab>
+                        <Tab fx:id="optionsTab" text="Options">
+                            <content>
+                                <TextFlow fx:id="optionsTabContent" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" />
+                            </content>
+                        </Tab>
+                        <Tab fx:id="skillsTab" text="Skills">
+                            <content>
+                                <TextFlow fx:id="skillsTabContent" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" />
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+                <ScrollPane fx:id="oocScrollPane" fitToHeight="true" fitToWidth="true" focusTraversable="false" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" vvalue="1.0">
+                    <content>
+                        <TextFlow fx:id="globalChatBox" focusTraversable="false" />
+                    </content>
+                </ScrollPane>
+            </items>
+        </SplitPane>
+    </center>
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" />
+    </padding>
+</BorderPane>

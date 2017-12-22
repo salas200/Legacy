@@ -18,7 +18,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         Parent root;
         try {
-            root = FXMLLoader.load(getClass().getResource("Main.fxml"));
+            root = FXMLLoader.load(getClass().getResource("Test.fxml"));
             primaryStage.setTitle("Legacy");
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("Styles.css").toString());
@@ -27,7 +27,7 @@ public class Main extends Application {
             primaryStage.show();
         } catch (IOException | NullPointerException e) {
             e.printStackTrace();
-            //Logger.getGlobal().log(Level.SEVERE,e.getMessage());
+            Logger.getGlobal().log(Level.SEVERE,e.getMessage());
             Platform.exit();
         }
 

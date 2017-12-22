@@ -3,8 +3,6 @@ package models;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
 import sun.misc.Launcher;
@@ -143,11 +141,11 @@ public class AnimationThread extends Thread {
                 }
             }
         } catch (IOException e) {
-            Logger.getGlobal().log(Level.SEVERE, "IOException: Read/Write failure!");
+            Logger.getGlobal().log(Level.WARNING, "IOException: Read/Write failure!");
         } catch (NullPointerException ex) {
-            Logger.getGlobal().log(Level.SEVERE, "NullPointerException: Could not find images!");
+            Logger.getGlobal().log(Level.WARNING, "NullPointerException: Could not find images!");
         } catch (URISyntaxException e1) {
-            Logger.getGlobal().log(Level.SEVERE, "URISyntaxException: direction to jarfile is incorrect!");
+            Logger.getGlobal().log(Level.WARNING, "URISyntaxException: direction to jarfile is incorrect!");
         }
 
         try {
