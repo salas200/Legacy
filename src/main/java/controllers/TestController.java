@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
@@ -110,6 +111,9 @@ public class TestController implements Initializable {
         gameScrollPane.setMaxHeight(600);
         gameScrollPane.setMinWidth(900);
         gameScrollPane.setMaxWidth(900);
+
+        gameScrollPane.setOnKeyPressed(Event::consume);
+        gameContainer.setOnScroll(Event::consume);
 
         gameScrollPane.setVmax(canvasHeight);
         gameScrollPane.setHmax(canvasWidth);
