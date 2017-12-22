@@ -4,26 +4,23 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.layout.*;
+import javafx.scene.Group;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
 import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.util.Pair;
-import models.AnimationThread;
+import models.*;
 import models.Character;
-import models.MovementThread;
-import models.Verb;
+import services.MapService;
 import services.ResourceService;
 
 import java.net.URL;
@@ -32,13 +29,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-/**
- * @author Achmed Waly
- */
 public class MainController implements Initializable {
 
     @FXML
     private TextFlow optionsTabContent;
+
+    @FXML
+    private Canvas gameCanvas;
 
     @FXML
     private Tab itemsTab;
@@ -48,9 +45,6 @@ public class MainController implements Initializable {
 
     @FXML
     private Tab skillsTab;
-
-    @FXML
-    private Pane gamePane;
 
     @FXML
     private ScrollPane oocScrollPane;
@@ -82,74 +76,104 @@ public class MainController implements Initializable {
     @FXML
     private ScrollPane chatScrollPane;
 
-    private final double STEP = 1;
+    @FXML
+    private Group gameContainer;
 
-    private final Image GRASS = ResourceService.loadImage("/icons/grass.png");
-    private final Image STATIC_BASE = ResourceService.loadImage("/icons/base/south_animated/0.png");
+    @FXML
+    private ScrollPane gameScrollPane;
 
-    private DoubleProperty trueHeight = new SimpleDoubleProperty(550);
-    private DoubleProperty trueWidth = new SimpleDoubleProperty(880);
+    private Character character = null;
 
-    private Character player1;
-    private Character dummy1;
+    private AnimationThread animationThread = null;
 
-    private ChangeListener<Number> playerXListener;
-    private ChangeListener<Number> playerYListener;
+    private MovementThread movementThread = null;
+
+    private DoubleProperty height = new SimpleDoubleProperty();
+    private DoubleProperty width = new SimpleDoubleProperty();
 
     private Text introLocal = new Text();
     private Text introGlobal = new Text();
     private Text examine = new Text();
 
-    private AnimationThread animationThread;
-    private MovementThread movementThread;
+    private double canvasHeight = 1600;
+    private double canvasWidth = 2400;
 
-    private boolean goNorth, goSouth, goWest, goEast;
+    private int step = 1;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        gamePane.setMinSize(900, 600);
-        gamePane.setMaxSize(900, 600);
+        //  Set canvas size
+        gameCanvas.setHeight(canvasHeight);
+        gameCanvas.setWidth(canvasWidth);
 
-        gamePane.minWidthProperty().addListener((observable, oldValue, newValue) -> trueWidth.set(newValue.doubleValue() - 20));
-        gamePane.minHeightProperty().addListener((observable, oldValue, newValue) -> trueHeight.set(newValue.doubleValue() - 50));
+        //  Set scroll pane size
+        gameScrollPane.setMinHeight(600);
+        gameScrollPane.setMaxHeight(600);
+        gameScrollPane.setMinWidth(900);
+        gameScrollPane.setMaxWidth(900);
 
-        gamePane.setBackground(new Background(new BackgroundImage(GRASS, BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT,
-                BackgroundSize.DEFAULT)));
+        gameScrollPane.setOnKeyPressed(Event::consume);
+        gameContainer.setOnScroll(Event::consume);
 
-        dummy1 = new Character(STATIC_BASE,"dummy");
+        gameScrollPane.setVmax(canvasHeight);
+        gameScrollPane.setHmax(canvasWidth);
 
-        player1 = new Character(STATIC_BASE, "shyzus", "");
+        //  Unsure as to why size for the movementthread is always a tile more
+        height.set(canvasHeight - 32);
+        width.set(canvasWidth - 32);
 
-        player1.setLocation(50, 50);
-        dummy1.setLocation(200,200);
+        //  Generate map
+        MapService.generateBaseMap(gameCanvas, "/icons/grass.png");
+
+        //  Generate terrain
+        MapService.spawnTerrain(gameContainer, new Terrain("/icons/rock.png"), 5, 5);
+
+        //  Generate character
+        character = new Character(ResourceService.loadImage("/icons/base/south_animated/0.png"), "Shyzus", "1234");
+        MapService.spawnCharacter(gameContainer, character, 0, 0);
 
         // Give each property in the propertyList of the player a changeListener (NOTE ONLY PROPERTIES VISIBLE TO THE PLAYER)
-        for (Property property : player1.getPropertyList()) {
-            property.addListener((observable, oldValue, newValue) -> statsTabContent.getChildren().setAll(player1.getStats()));
+        for (Property property : character.getPropertyList()) {
+            property.addListener((observable, oldValue, newValue) -> statsTabContent.getChildren().setAll(character.getStats()));
         }
 
         // Resize scrollpane length as their chatbox height increases.
         oocScrollPane.vvalueProperty().bind(globalChatBox.heightProperty());
         chatScrollPane.vvalueProperty().bind(localChatBox.heightProperty());
 
-        // Add listener for collisions
-        playerXListener = player1.createPosChangeListener(player1, dummy1, STEP, trueHeight.getValue(), trueWidth.getValue());
-        playerYListener = player1.createPosChangeListener(player1, dummy1, STEP, trueHeight.getValue(), trueWidth.getValue());
+        //gameScrollPane.hvalueProperty().bind(character.xProperty());
+        //gameScrollPane.vvalueProperty().bind(character.yProperty());
 
-        player1.xProperty().addListener((observable, oldValue, newValue) -> {
-            Text statLocation = new Text("Location: (" + newValue.intValue() + ", " + (int) player1.getY() + ")\n");
+        character.xProperty().addListener((observable, oldValue, newValue) -> {
+            Text statLocation = new Text("Location: (" + newValue.intValue() + ", " + (int) character.getY() + ")\n");
             statLocation.setFill(Color.WHITE);
             statsTabContent.getChildren().set(1, statLocation);
+
+            if (newValue.intValue() + 32 >= (gameScrollPane.getMaxWidth() / 2) && newValue.intValue() < canvasWidth) {
+                //  Set to center of screen
+                gameScrollPane.setHvalue((newValue.intValue() - (gameScrollPane.getMaxWidth() / 2)) * 1.6);
+
+            } else {
+                gameScrollPane.setHvalue(0);
+            }
+
         });
 
-        player1.yProperty().addListener((observable, oldValue, newValue) -> {
-            Text statLocation = new Text("Location: (" + (int) player1.getX() + ", " + newValue.intValue() + ")\n");
+        character.yProperty().addListener((observable, oldValue, newValue) -> {
+            Text statLocation = new Text("Location: (" + (int) character.getX() + ", " + newValue.intValue() + ")\n");
             statLocation.setFill(Color.WHITE);
             statsTabContent.getChildren().set(1, statLocation);
+
+            if (newValue.intValue() + 32 >= (gameScrollPane.getMaxHeight() / 2) && newValue.intValue() < canvasHeight) {
+                //  Set to center of screen
+                gameScrollPane.setVvalue((newValue.intValue() - (gameScrollPane.getMaxHeight() / 2)) * 1.6);
+
+            } else {
+                gameScrollPane.setVvalue(0);
+            }
+
         });
 
-        player1.xProperty().addListener(playerXListener);
-        player1.yProperty().addListener(playerYListener);
 
         //Intro message
         introLocal = new Text("Welcome to the Legacy Demo!\n");
@@ -162,15 +186,37 @@ public class MainController implements Initializable {
 
         //sayVerb implementation
         Verb sayVerb = new Verb("Say", "verb");
-        sayVerb.setOnMouseClicked(event -> player1.say(localChatBox));
+        sayVerb.setOnMouseClicked(event -> character.say(localChatBox));
 
         //roleplayVerb implementation
         Verb roleplayVerb = new Verb("Roleplay", "verb");
-        roleplayVerb.setOnMouseClicked(event -> player1.roleplay(localChatBox));
+        roleplayVerb.setOnMouseClicked(event -> character.roleplay(localChatBox));
 
         //oocVerb implementation
         Verb oocVerb = new Verb("OOC", "verb");
-        oocVerb.setOnMouseClicked(event -> player1.ooc(globalChatBox));
+        oocVerb.setOnMouseClicked(event -> character.ooc(globalChatBox));
+        
+        //speedVerb implementation
+        Verb speedVerb = new Verb("Set Speed", "verb");
+        speedVerb.setOnMouseClicked(event -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setGraphic(null);
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.setHeaderText(null);
+            dialog.setTitle("Set Speed");
+            // The Java 8 way to get the response value (with lambda expression).
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(output -> {
+                Boolean notWhitespace = false;
+                for (char section : output.toCharArray()) {
+                    notWhitespace = section != ' ';
+                }
+
+                if (!output.isEmpty() && notWhitespace) {
+                    movementThread.setSTEP(Integer.parseInt(output));
+                }
+            });
+        });
 
         //helpVerb implementation
         Verb helpVerb = new Verb("Help", "verb");
@@ -183,17 +229,15 @@ public class MainController implements Initializable {
             tab.getStyleClass().add("background");
         }
 
-        optionsTabContent.getChildren().addAll(sayVerb, roleplayVerb, oocVerb, helpVerb);
-        statsTabContent.getChildren().setAll(player1.getStats());
+        optionsTabContent.getChildren().addAll(sayVerb, roleplayVerb, oocVerb, helpVerb, speedVerb);
+        statsTabContent.getChildren().setAll(character.getStats());
 
-        gamePane.getChildren().addAll(player1, dummy1);
-
-        animationThread = new AnimationThread("player1",player1, null);
+        animationThread = new AnimationThread("character", character, null);
         animationThread.start();
 
-        //movementThread = new MovementThread(player1, animationThread, STEP, trueHeight, trueWidth);
+        movementThread = new MovementThread(character, animationThread, step, height, width);
 
-        gamePane.setOnKeyPressed(event -> {
+        gameCanvas.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case UP:
                     movementThread.setGoNorth(true);
@@ -210,7 +254,7 @@ public class MainController implements Initializable {
             }
         });
 
-        gamePane.setOnKeyReleased(event -> {
+        gameCanvas.setOnKeyReleased(event -> {
             switch (event.getCode()) {
                 case UP:
                     movementThread.setGoNorth(false);
@@ -229,150 +273,51 @@ public class MainController implements Initializable {
 
         movementThread.start();
 
-        gamePane.setOnMouseClicked(event -> Platform.runLater(gamePane::requestFocus));
+        gameCanvas.setOnMouseClicked(event -> Platform.runLater(gameCanvas::requestFocus));
 
-        statsTab.setOnSelectionChanged(event -> Platform.runLater(gamePane::requestFocus));
-        statsTabContent.setOnMouseClicked(event -> Platform.runLater(gamePane::requestFocus));
-        skillsTab.setOnSelectionChanged(event -> Platform.runLater(gamePane::requestFocus));
-        skillsTabContent.setOnMouseClicked(event -> Platform.runLater(gamePane::requestFocus));
-        itemsTab.setOnSelectionChanged(event -> Platform.runLater(gamePane::requestFocus));
-        itemsTabContent.setOnMouseClicked(event -> Platform.runLater(gamePane::requestFocus));
-        optionsTab.setOnSelectionChanged(event -> Platform.runLater(gamePane::requestFocus));
-        optionsTabContent.setOnMouseClicked(event -> Platform.runLater(gamePane::requestFocus));
+        statsTab.setOnSelectionChanged(event -> Platform.runLater(gameCanvas::requestFocus));
+        statsTabContent.setOnMouseClicked(event -> Platform.runLater(gameCanvas::requestFocus));
+        skillsTab.setOnSelectionChanged(event -> Platform.runLater(gameCanvas::requestFocus));
+        skillsTabContent.setOnMouseClicked(event -> Platform.runLater(gameCanvas::requestFocus));
+        itemsTab.setOnSelectionChanged(event -> Platform.runLater(gameCanvas::requestFocus));
+        itemsTabContent.setOnMouseClicked(event -> Platform.runLater(gameCanvas::requestFocus));
+        optionsTab.setOnSelectionChanged(event -> Platform.runLater(gameCanvas::requestFocus));
+        optionsTabContent.setOnMouseClicked(event -> Platform.runLater(gameCanvas::requestFocus));
 
-        localChatBox.setOnMouseClicked(event -> Platform.runLater(gamePane::requestFocus));
-        globalChatBox.setOnMouseClicked(event -> Platform.runLater(gamePane::requestFocus));
+        localChatBox.setOnMouseClicked(event -> Platform.runLater(gameCanvas::requestFocus));
+        globalChatBox.setOnMouseClicked(event -> Platform.runLater(gameCanvas::requestFocus));
 
-        Platform.runLater(gamePane::requestFocus);
+        Platform.runLater(gameCanvas::requestFocus);
     }
 
-    /**
-     * Display help page in a popup.
-     */
+
     @FXML
-    private void getHelp() {
-        try {
-            Stage stage = new Stage();
-            WebView webView = new WebView();
-            WebEngine webEngine = webView.getEngine();
-            webEngine.load(getClass().getResource("help/Help.html").toString());
-            Scene scene = new Scene(webView);
-            stage.setScene(scene);
-            stage.setTitle("Help");
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.initOwner(gamePane.getScene().getWindow());
-            stage.show();
-            stage.setOnCloseRequest(event -> webEngine.load(null));
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
+    void reconnect() {
+
     }
 
-    /**
-     * Exit the application.
-     */
     @FXML
-    private void exit() {
-        Platform.exit();
+    void setMacros() {
+
     }
 
-    /**
-     * TODO: JAVADOC
-     */
     @FXML
-    private void reconnect() {
-        Text level = new Text("SYSTEM: RECONNECT FUNCTION NOT YET IMPLEMENTED!\n");
-        level.getStyleClass().add("error");
-        globalChatBox.getChildren().add(level);
+    void exit() {
+
     }
 
-    /**
-     * TODO: JAVADOC
-     */
     @FXML
-    private void setMacros() {
-        Text level = new Text("SYSTEM: SETMACROS FUNCTION NOT YET IMPLEMENTED!\n");
-        level.getStyleClass().add("error");
-        globalChatBox.getChildren().add(level);
+    void resizegameCanvas() {
+
     }
 
-    /**
-     * TODO: JAVADOC
-     */
     @FXML
-    private void getAbout() {
-        Text level = new Text("SYSTEM: GETABOUT FUNCTION NOT YET IMPLEMENTED!\n");
-        level.getStyleClass().add("error");
-        globalChatBox.getChildren().add(level);
+    void getAbout() {
+
     }
 
-    /**
-     * Resize the gamePane based on input.
-     */
     @FXML
-    private void resizeGamePane() {
-        // Create the custom dialog.
-        Dialog<Pair<String, String>> dialog = new Dialog<>();
-        dialog.setTitle("Resize");
-        dialog.setHeaderText(null);
-
-        // Set the button types.
-        ButtonType confirmButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, ButtonType.CANCEL);
-
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.setPadding(new Insets(20, 150, 10, 10));
-
-        TextField height = new TextField();
-        height.setPromptText(String.valueOf(gamePane.getHeight()));
-        TextField width = new TextField();
-        width.setPromptText(String.valueOf(gamePane.getWidth()));
-
-        gridPane.add(new Label("Height:"), 0, 0);
-        gridPane.add(height, 1, 0);
-        gridPane.add(new Label("Width:"), 2, 0);
-        gridPane.add(width, 3, 0);
-
-        dialog.getDialogPane().setContent(gridPane);
-
-        // Convert the result to a username-width-pair when the login button is clicked.
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == confirmButtonType && !height.getText().isEmpty() && !width.getText().isEmpty()) {
-                return new Pair<>(height.getText(), width.getText());
-            } else {
-                return null;
-            }
-        });
-
-        Optional<Pair<String, String>> result = dialog.showAndWait();
-
-        if (result.isPresent()) {
-            double heightValue = Double.parseDouble(result.get().getKey());
-            double widthValue = Double.parseDouble(result.get().getValue());
-
-            gamePane.setMinSize(widthValue, heightValue);
-            gamePane.setMaxSize(widthValue, heightValue);
-            updateListeners();
-        } else {
-            dialog.close();
-        }
-    }
-
-    /**
-     * Updates the listeners for player and dummy properties.
-     */
-    private void updateListeners() {
-        player1.xProperty().removeListener(playerXListener);
-        player1.yProperty().removeListener(playerYListener);
-
-
-        playerXListener = player1.createPosChangeListener(player1, player1, STEP, trueHeight.getValue(), trueWidth.getValue());
-        playerYListener = player1.createPosChangeListener(player1, player1, STEP, trueHeight.getValue(), trueWidth.getValue());
-
-        player1.xProperty().addListener(playerXListener);
-        player1.yProperty().addListener(playerYListener);
+    void getHelp() {
 
     }
 }
