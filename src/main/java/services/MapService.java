@@ -3,6 +3,7 @@ package services;
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import models.Character;
+import models.Terrain;
 
 public class MapService {
 
@@ -22,10 +23,14 @@ public class MapService {
         }
     }
 
+    public static void spawnTerrain(Group gameContainer, Terrain terrain, int x, int y) {
+        gameContainer.getChildren().add(terrain);
+        terrain.setLocation(x, y);
+    }
+
     public static void spawnCharacter(Group gameContainer, Character character, int x, int y) {
         gameContainer.getChildren().add(character);
-        character.setX(x);
-        character.setY(y);
+        character.setLocation(x, y);
     }
 
 }

@@ -2,8 +2,8 @@ package controllers;
 
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
@@ -11,18 +11,24 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import models.AnimationThread;
+import javafx.stage.Modality;
+import models.*;
 import models.Character;
-import models.MovementThread;
 import services.MapService;
 import services.ResourceService;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class TestController implements Initializable{
+public class TestController implements Initializable {
 
     @FXML
     private TextFlow optionsTabContent;
@@ -72,6 +78,9 @@ public class TestController implements Initializable{
     @FXML
     private Group gameContainer;
 
+    @FXML
+    private ScrollPane gameScrollPane;
+
     private Character character = null;
 
     private AnimationThread animationThread = null;
@@ -79,33 +88,150 @@ public class TestController implements Initializable{
     private MovementThread movementThread = null;
 
     private DoubleProperty height = new SimpleDoubleProperty();
-
     private DoubleProperty width = new SimpleDoubleProperty();
+
+    private Text introLocal = new Text();
+    private Text introGlobal = new Text();
+    private Text examine = new Text();
+
+    private double canvasHeight = 1600;
+    private double canvasWidth = 2400;
+
+    private int step = 1;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         //  Set canvas size
-        gameCanvas.setHeight(600);
-        gameCanvas.setWidth(900);
-        height.set(600);
-        width.set(900);
+        gameCanvas.setHeight(canvasHeight);
+        gameCanvas.setWidth(canvasWidth);
 
-        //  Add change listener for the size
-        gameCanvas.heightProperty().addListener((observable, oldValue, newValue) ->
-                gameContainer.minHeight(newValue.doubleValue()));
-        gameCanvas.widthProperty().addListener((observable, oldValue, newValue) ->
-                gameContainer.minWidth(newValue.doubleValue()));
+        //  Set scroll pane size
+        gameScrollPane.setMinHeight(600);
+        gameScrollPane.setMaxHeight(600);
+        gameScrollPane.setMinWidth(900);
+        gameScrollPane.setMaxWidth(900);
+
+        gameScrollPane.setVmax(canvasHeight);
+        gameScrollPane.setHmax(canvasWidth);
+
+        //  Unsure as to why size for the movementthread is always a tile more
+        height.set(canvasHeight - 32);
+        width.set(canvasWidth - 32);
 
         //  Generate map
         MapService.generateBaseMap(gameCanvas, "/icons/grass.png");
 
-        character = new Character(ResourceService.loadImage("/icons/base/south_animated/0.png"),"Shyzus", "1234");
-        MapService.spawnCharacter(gameContainer, character, 3, 3);
+        //  Generate terrain
+        MapService.spawnTerrain(gameContainer, new Terrain("/icons/rock.png"), 5, 5);
 
-        animationThread = new AnimationThread("player1",character, null);
+        //  Generate character
+        character = new Character(ResourceService.loadImage("/icons/base/south_animated/0.png"), "Shyzus", "1234");
+        MapService.spawnCharacter(gameContainer, character, 0, 0);
+
+        // Give each property in the propertyList of the player a changeListener (NOTE ONLY PROPERTIES VISIBLE TO THE PLAYER)
+        for (Property property : character.getPropertyList()) {
+            property.addListener((observable, oldValue, newValue) -> statsTabContent.getChildren().setAll(character.getStats()));
+        }
+
+        // Resize scrollpane length as their chatbox height increases.
+        oocScrollPane.vvalueProperty().bind(globalChatBox.heightProperty());
+        chatScrollPane.vvalueProperty().bind(localChatBox.heightProperty());
+
+        //gameScrollPane.hvalueProperty().bind(character.xProperty());
+        //gameScrollPane.vvalueProperty().bind(character.yProperty());
+
+        character.xProperty().addListener((observable, oldValue, newValue) -> {
+            Text statLocation = new Text("Location: (" + newValue.intValue() + ", " + (int) character.getY() + ")\n");
+            statLocation.setFill(Color.WHITE);
+            statsTabContent.getChildren().set(1, statLocation);
+
+            if (newValue.intValue() + 32 >= (gameScrollPane.getMaxWidth() / 2) && newValue.intValue() < canvasWidth) {
+                //  Set to center of screen
+                gameScrollPane.setHvalue((newValue.intValue() - (gameScrollPane.getMaxWidth() / 2)) * 1.6);
+
+            } else {
+                gameScrollPane.setHvalue(0);
+            }
+
+        });
+
+        character.yProperty().addListener((observable, oldValue, newValue) -> {
+            Text statLocation = new Text("Location: (" + (int) character.getX() + ", " + newValue.intValue() + ")\n");
+            statLocation.setFill(Color.WHITE);
+            statsTabContent.getChildren().set(1, statLocation);
+
+            if (newValue.intValue() + 32 >= (gameScrollPane.getMaxHeight() / 2) && newValue.intValue() < canvasHeight) {
+                //  Set to center of screen
+                gameScrollPane.setVvalue((newValue.intValue() - (gameScrollPane.getMaxHeight() / 2)) * 1.6);
+
+            } else {
+                gameScrollPane.setVvalue(0);
+            }
+
+        });
+
+
+        //Intro message
+        introLocal = new Text("Welcome to the Legacy Demo!\n");
+        introLocal.getStyleClass().add("intro");
+        localChatBox.getChildren().add(introLocal);
+
+        introGlobal = new Text("Welcome to the Legacy Demo!\nUse the help verb if you have questions!\n");
+        introGlobal.getStyleClass().add("intro");
+        globalChatBox.getChildren().add(introGlobal);
+
+        //sayVerb implementation
+        Verb sayVerb = new Verb("Say", "verb");
+        sayVerb.setOnMouseClicked(event -> character.say(localChatBox));
+
+        //roleplayVerb implementation
+        Verb roleplayVerb = new Verb("Roleplay", "verb");
+        roleplayVerb.setOnMouseClicked(event -> character.roleplay(localChatBox));
+
+        //oocVerb implementation
+        Verb oocVerb = new Verb("OOC", "verb");
+        oocVerb.setOnMouseClicked(event -> character.ooc(globalChatBox));
+        
+        //speedVerb implementation
+        Verb speedVerb = new Verb("Set Speed", "verb");
+        speedVerb.setOnMouseClicked(event -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setGraphic(null);
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.setHeaderText(null);
+            dialog.setTitle("Set Speed");
+            // The Java 8 way to get the response value (with lambda expression).
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(output -> {
+                Boolean notWhitespace = false;
+                for (char section : output.toCharArray()) {
+                    notWhitespace = section != ' ';
+                }
+
+                if (!output.isEmpty() && notWhitespace) {
+                    movementThread.setSTEP(Integer.parseInt(output));
+                }
+            });
+        });
+
+        //helpVerb implementation
+        Verb helpVerb = new Verb("Help", "verb");
+        helpVerb.setOnMouseClicked(event -> getHelp());
+
+        List<TextFlow> tabList = Arrays.asList(statsTabContent, skillsTabContent, optionsTabContent, itemsTabContent
+                , localChatBox, globalChatBox);
+
+        for (TextFlow tab : tabList) {
+            tab.getStyleClass().add("background");
+        }
+
+        optionsTabContent.getChildren().addAll(sayVerb, roleplayVerb, oocVerb, helpVerb, speedVerb);
+        statsTabContent.getChildren().setAll(character.getStats());
+
+        animationThread = new AnimationThread("character", character, null);
         animationThread.start();
 
-        movementThread = new MovementThread(character, animationThread, 1, height, width);
+        movementThread = new MovementThread(character, animationThread, step, height, width);
 
         gameCanvas.setOnKeyPressed(event -> {
             switch (event.getCode()) {
@@ -162,32 +288,32 @@ public class TestController implements Initializable{
 
 
     @FXML
-    void reconnect(ActionEvent event) {
+    void reconnect() {
 
     }
 
     @FXML
-    void setMacros(ActionEvent event) {
+    void setMacros() {
 
     }
 
     @FXML
-    void exit(ActionEvent event) {
+    void exit() {
 
     }
 
     @FXML
-    void resizegameCanvas(ActionEvent event) {
+    void resizegameCanvas() {
 
     }
 
     @FXML
-    void getAbout(ActionEvent event) {
+    void getAbout() {
 
     }
 
     @FXML
-    void getHelp(ActionEvent event) {
+    void getHelp() {
 
     }
 }

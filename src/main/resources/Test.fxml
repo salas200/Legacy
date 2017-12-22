@@ -41,11 +41,15 @@
                 <Insets />
             </BorderPane.margin>
             <items>
-            <Group fx:id="gameContainer">
-               <children>
-                  <Canvas fx:id="gameCanvas" height="200.0" width="200.0" />
-               </children>
-            </Group>
+            <ScrollPane fx:id="gameScrollPane" hbarPolicy="NEVER" vbarPolicy="NEVER">
+               <content>
+                  <Group fx:id="gameContainer">
+                     <children>
+                        <Canvas fx:id="gameCanvas" height="200.0" width="200.0" />
+                     </children>
+                  </Group>
+               </content>
+            </ScrollPane>
                 <ScrollPane fx:id="chatScrollPane" fitToHeight="true" fitToWidth="true" focusTraversable="false" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" vvalue="1.0">
                     <content>
                         <TextFlow fx:id="localChatBox" focusTraversable="false" />

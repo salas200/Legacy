@@ -191,7 +191,7 @@ public class MainController implements Initializable {
         animationThread = new AnimationThread("player1",player1, null);
         animationThread.start();
 
-        movementThread = new MovementThread(player1, animationThread, STEP, trueHeight, trueWidth);
+        //movementThread = new MovementThread(player1, animationThread, STEP, trueHeight, trueWidth);
 
         gamePane.setOnKeyPressed(event -> {
             switch (event.getCode()) {

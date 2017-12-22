@@ -12,12 +12,17 @@ public class MovementThread extends AnimationTimer {
     private DoubleProperty trueHeight;
     private DoubleProperty trueWidth;
 
+    public void setSTEP(double STEP) {
+        this.STEP = STEP;
+    }
+
     public MovementThread(Character player1, AnimationThread animationThread, double STEP
             , DoubleProperty trueHeight, DoubleProperty trueWidth) {
         this.player1 = player1;
         this.animationThread = animationThread;
         this.STEP = STEP;
         this.trueHeight = trueHeight;
+
         this.trueWidth = trueWidth;
     }
 
@@ -27,7 +32,6 @@ public class MovementThread extends AnimationTimer {
             if (player1.getY() - STEP > 0) {
                 if (animationThread.getDirection().equals(animationThread.NORTH_WALKING)) {
                     player1.setY(player1.getY() - STEP);
-
                 } else {
                     animationThread.interrupt();
                     animationThread.setDirection(animationThread.NORTH_WALKING);
@@ -69,7 +73,7 @@ public class MovementThread extends AnimationTimer {
 
                 }
             } else {
-                player1.setLocation(player1.getX(), 25);
+                player1.setLocation(player1.getX(), 0);
 
             }
         } else if (goEast) {
@@ -84,7 +88,7 @@ public class MovementThread extends AnimationTimer {
                     player1.setX(player1.getX() + STEP);
                 }
             } else {
-                player1.setLocation(25, player1.getY());
+                player1.setLocation(0, player1.getY());
             }
         }
     }
