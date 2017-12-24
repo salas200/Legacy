@@ -24,10 +24,7 @@ import services.MapService;
 import services.ResourceService;
 
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class MainController implements Initializable {
 
@@ -98,7 +95,9 @@ public class MainController implements Initializable {
     private double canvasHeight = 1600;
     private double canvasWidth = 2400;
 
-    private int step = 1;
+    private double step = 1;
+
+    private LinkedList<Terrain> terrainLinkedList = new LinkedList<Terrain>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -126,7 +125,9 @@ public class MainController implements Initializable {
         MapService.generateBaseMap(gameCanvas, "/icons/grass.png");
 
         //  Generate terrain
-        MapService.spawnTerrain(gameContainer, new Terrain("/icons/rock.png"), 5, 5);
+        Terrain rock =  new Terrain("/icons/rock.png");
+        MapService.spawnTerrain(gameContainer, rock, 64, 32);
+        terrainLinkedList.add(rock);
 
         //  Generate character
         character = new Character(ResourceService.loadImage("/icons/base/south_animated/0.png"), "Shyzus", "1234");
@@ -140,9 +141,6 @@ public class MainController implements Initializable {
         // Resize scrollpane length as their chatbox height increases.
         oocScrollPane.vvalueProperty().bind(globalChatBox.heightProperty());
         chatScrollPane.vvalueProperty().bind(localChatBox.heightProperty());
-
-        //gameScrollPane.hvalueProperty().bind(character.xProperty());
-        //gameScrollPane.vvalueProperty().bind(character.yProperty());
 
         character.xProperty().addListener((observable, oldValue, newValue) -> {
             Text statLocation = new Text("Location: (" + newValue.intValue() + ", " + (int) character.getY() + ")\n");
@@ -213,7 +211,7 @@ public class MainController implements Initializable {
                 }
 
                 if (!output.isEmpty() && notWhitespace) {
-                    movementThread.setSTEP(Integer.parseInt(output));
+                    movementThread.setStep(Double.parseDouble(output));
                 }
             });
         });
@@ -235,7 +233,7 @@ public class MainController implements Initializable {
         animationThread = new AnimationThread("character", character, null);
         animationThread.start();
 
-        movementThread = new MovementThread(character, animationThread, step, height, width);
+        movementThread = new MovementThread(character, terrainLinkedList ,animationThread, step, height, width);
 
         gameCanvas.setOnKeyPressed(event -> {
             switch (event.getCode()) {
