@@ -125,7 +125,7 @@ public class MainController implements Initializable {
         MapService.generateBaseMap(gameCanvas, "/icons/grass.png");
 
         //  Generate terrain
-        Terrain rock =  new Terrain("/icons/rock1.png");
+        Terrain rock =  new Terrain("/icons/rock.png");
         MapService.spawnTerrain(gameContainer, rock, 64, 34);
         terrainLinkedList.add(rock);
 
