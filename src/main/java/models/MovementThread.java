@@ -41,8 +41,12 @@ public class MovementThread extends AnimationTimer {
                 //  Check for terrain
                 for (Terrain terrain : terrainLinkedList) {
                     while (player1.intersects(terrain.getLayoutBounds())) {
-                        player1.setLocation(player1.getX(), player1.getPrevY() + 2);
-                        boundCheck();
+                        if (player1.getY() < terrain.getY()) {
+                            break;
+                        } else {
+                            player1.setLocation(player1.getX(), player1.getY() + 1);
+                            boundCheck();
+                        }
                     }
                     break;
                 }
@@ -68,8 +72,13 @@ public class MovementThread extends AnimationTimer {
                 //  Check for terrain
                 for (Terrain terrain : terrainLinkedList) {
                     while (player1.intersects(terrain.getLayoutBounds())) {
-                        player1.setLocation(player1.getPrevX() + 2, player1.getY());
-                        boundCheck();
+                        if (player1.getX() < terrain.getX()) {
+                            break;
+                        } else {
+                            player1.setLocation(player1.getX() + 1, player1.getY());
+                            boundCheck();
+                        }
+
                     }
                     break;
                 }
@@ -97,8 +106,12 @@ public class MovementThread extends AnimationTimer {
                 //  Check for terrain
                 for (Terrain terrain : terrainLinkedList) {
                     while (player1.intersects(terrain.getLayoutBounds())) {
-                        player1.setLocation(player1.getX(), player1.getPrevY() - 2);
-                        boundCheck();
+                        if (player1.getY() > terrain.getY()) {
+                            break;
+                        } else {
+                            player1.setLocation(player1.getX(), player1.getY() - 1);
+                            boundCheck();
+                        }
                     }
                     break;
                 }
@@ -126,8 +139,13 @@ public class MovementThread extends AnimationTimer {
                 //  Check for terrain
                 for (Terrain terrain : terrainLinkedList) {
                     while (player1.intersects(terrain.getLayoutBounds())) {
-                        player1.setLocation(player1.getPrevX() - 2, player1.getY());
-                        boundCheck();
+                        if (player1.getX() > terrain.getX()) {
+                            break;
+                        } else {
+                            
+                            player1.setLocation(player1.getX() - 1, player1.getY());
+                            boundCheck();
+                        }
                     }
                     break;
                 }
