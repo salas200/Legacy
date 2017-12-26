@@ -1,7 +1,7 @@
-package models;
+package model;
 
 
-import services.ResourceService;
+import service.ResourceService;
 
 public class Terrain extends Sprite {
 

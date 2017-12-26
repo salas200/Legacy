@@ -1,6 +1,6 @@
-package services;
+package service;
 
-import controllers.MainController;
+import controller.MainController;
 import javafx.scene.image.Image;
 
 import java.util.logging.Level;

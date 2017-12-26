@@ -1,4 +1,4 @@
-package controllers;
+package controller;
 
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
@@ -18,10 +18,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
-import models.*;
-import models.Character;
-import services.MapService;
-import services.ResourceService;
+import model.*;
+import model.Character;
+import service.MapService;
+import service.ResourceService;
 
 import java.net.URL;
 import java.util.*;

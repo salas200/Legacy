@@ -1,4 +1,4 @@
-package models;
+package model;
 
 import javafx.scene.control.Label;
 

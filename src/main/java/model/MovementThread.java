@@ -1,4 +1,4 @@
-package models;
+package model;
 
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.DoubleProperty;

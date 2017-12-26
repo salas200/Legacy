@@ -1,9 +1,9 @@
-package services;
+package service;
 
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
-import models.Character;
-import models.Terrain;
+import model.Character;
+import model.Terrain;
 
 public class MapService {
 
