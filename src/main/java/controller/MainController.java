@@ -22,6 +22,7 @@ import model.*;
 import model.Character;
 import service.MapService;
 import service.ResourceService;
+import service.SceneService;
 
 import java.net.URL;
 import java.util.*;
@@ -216,6 +217,11 @@ public class MainController implements Initializable {
             });
         });
 
+        Verb mapBuilder = new Verb("Open Map Builder", "verb");
+        mapBuilder.setOnMouseClicked(event -> {
+            SceneService.switchScene(tabPane.getParent(),"MapBuilder");
+        });
+
         //helpVerb implementation
         Verb helpVerb = new Verb("Help", "verb");
         helpVerb.setOnMouseClicked(event -> getHelp());
@@ -227,7 +233,7 @@ public class MainController implements Initializable {
             tab.getStyleClass().add("background");
         }
 
-        optionsTabContent.getChildren().addAll(sayVerb, roleplayVerb, oocVerb, helpVerb, speedVerb);
+        optionsTabContent.getChildren().addAll(sayVerb, roleplayVerb, oocVerb, helpVerb, speedVerb, mapBuilder);
         statsTabContent.getChildren().setAll(character.getStats());
 
         animationThread = new AnimationThread("character", character, null);
