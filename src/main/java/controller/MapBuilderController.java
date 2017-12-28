@@ -37,23 +37,29 @@ public class MapBuilderController implements Initializable {
     @FXML
     private ScrollPane gameScrollPane;
 
+    private String selected;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Terrain rock = new Terrain("/icons/rock.png");
 
+        terrainTab.setContent(rock);
 
         Group group = new Group();
 
         // create canvas
         PannableCanvas canvas = new PannableCanvas();
 
-        // we don't want the canvas on the top/left in this example => just
-        // translate it a bit
-        canvas.setTranslateX(100);
-        canvas.setTranslateY(100);
-
         // create sample nodes which can be dragged
         NodeGestures nodeGestures = new NodeGestures( canvas);
+
+        rock.setOnMouseClicked(event -> {
+            selected = "rock";
+            Terrain newRock = new Terrain("/icons/rock.png");
+            newRock.addEventFilter(MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
+            newRock.addEventFilter(MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
+            canvas.getChildren().add(newRock);
+        });
 
         Label label1 = new Label("Draggable node 1");
         label1.setTranslateX(10);
@@ -101,7 +107,6 @@ public class MapBuilderController implements Initializable {
         gameScrollPane.addEventFilter( ScrollEvent.ANY, sceneGestures.getOnScrollEventHandler());
 
         canvas.addGrid();
-
 
     }
 }

@@ -26,23 +26,19 @@ public class NodeGestures {
         return onMouseDraggedEventHandler;
     }
 
-    private EventHandler<MouseEvent> onMousePressedEventHandler = new EventHandler<MouseEvent>() {
+    private EventHandler<MouseEvent> onMousePressedEventHandler = event -> {
 
-        public void handle(MouseEvent event) {
+        // left mouse button => dragging
+        if( !event.isPrimaryButtonDown())
+            return;
 
-            // left mouse button => dragging
-            if( !event.isPrimaryButtonDown())
-                return;
+        nodeDragContext.mouseAnchorX = event.getSceneX();
+        nodeDragContext.mouseAnchorY = event.getSceneY();
 
-            nodeDragContext.mouseAnchorX = event.getSceneX();
-            nodeDragContext.mouseAnchorY = event.getSceneY();
+        Node node = (Node) event.getSource();
 
-            Node node = (Node) event.getSource();
-
-            nodeDragContext.translateAnchorX = node.getTranslateX();
-            nodeDragContext.translateAnchorY = node.getTranslateY();
-
-        }
+        nodeDragContext.translateAnchorX = node.getTranslateX();
+        nodeDragContext.translateAnchorY = node.getTranslateY();
 
     };
 
