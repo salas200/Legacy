@@ -15,6 +15,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -25,17 +26,18 @@ import java.util.logging.Logger;
 /**
  * @author Achmed Waly
  */
-public class Character extends Sprite {
+public class Character extends Sprite implements Serializable{
 
-    private StringProperty name = new SimpleStringProperty();
+    private static final long serialVersionUID = 1L;
+
+    private String name;
     private String password;
-    private DoubleProperty health = new SimpleDoubleProperty();
-    private DoubleProperty trueAge = new SimpleDoubleProperty();
-    private DoubleProperty physAge = new SimpleDoubleProperty();
-    private DoubleProperty lift = new SimpleDoubleProperty();
-    private DoubleProperty powerLevel = new SimpleDoubleProperty();
-    private ListProperty<Item> inventory = new SimpleListProperty();
-    private List<Property<?>> propertyList = Arrays.asList(name, health, powerLevel, trueAge, physAge, lift);
+    private double health;
+    private double trueAge;
+    private double physAge;
+    private double lift;
+    private double powerLevel;
+    private List<Item> inventory = new ArrayList<Item>();
     private double energyReserves;
     private double strength;
     private double endurance;
@@ -61,7 +63,50 @@ public class Character extends Sprite {
     private double regenRatio;
 
     private Random numbGenerator = new Random();
-    private Timer regenerationTimer = new Timer("regeneration", true);
+
+    public Character() {
+
+    }
+
+    public Character(Image image) {
+        super(image);
+        this.setImage(image);
+    }
+
+    public Character(Image image, String name, String password, double health, double trueAge, double physAge, double lift, double powerLevel, List<Item> inventory, double energyReserves, double strength, double endurance, double force, double speed, double resistance, double offence, double defence, double regeneration, double recovery, double energyMod, double strengthMod, double enduranceMod, double powerLevelMod, double forceMod, double speedMod, double resistanceMod, double offenceMod, double defenceMod, double recovRatio, double regenRatio, Random numbGenerator) {
+        super(image);
+        this.setImage(image);
+        this.name = name;
+        this.password = password;
+        this.health = health;
+        this.trueAge = trueAge;
+        this.physAge = physAge;
+        this.lift = lift;
+        this.powerLevel = powerLevel;
+        this.inventory = inventory;
+        this.energyReserves = energyReserves;
+        this.strength = strength;
+        this.endurance = endurance;
+        this.force = force;
+        this.speed = speed;
+        this.resistance = resistance;
+        this.offence = offence;
+        this.defence = defence;
+        this.regeneration = regeneration;
+        this.recovery = recovery;
+        this.energyMod = energyMod;
+        this.strengthMod = strengthMod;
+        this.enduranceMod = enduranceMod;
+        this.powerLevelMod = powerLevelMod;
+        this.forceMod = forceMod;
+        this.speedMod = speedMod;
+        this.resistanceMod = resistanceMod;
+        this.offenceMod = offenceMod;
+        this.defenceMod = defenceMod;
+        this.recovRatio = recovRatio;
+        this.regenRatio = regenRatio;
+        this.numbGenerator = numbGenerator;
+    }
 
     /**
      * Allocates a new Character object using the given image and data.
@@ -74,12 +119,12 @@ public class Character extends Sprite {
     public Character(Image image, String name, String password) {
         super(image);
         this.setImage(image);
-        this.name.set(name);
+        this.name = name;
         this.password = hashPassword(password);
-        health.set(100);
-        trueAge.set(21);
-        physAge.set(21);
-        lift.set(4);
+        health = 100;
+        trueAge = 21;
+        physAge = 21;
+        lift = 4;
         powerLevelMod = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble();
         energyMod = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble();
         strengthMod = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble();
@@ -92,7 +137,7 @@ public class Character extends Sprite {
         recovRatio = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble();
         regenRatio = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble();
         energyReserves = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getEnergyMod();
-        powerLevel.set(Math.floor(numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getPowerLevelMod()));
+        powerLevel = Math.floor(numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getPowerLevelMod());
         strength = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getStrengthMod();
         endurance = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getEnduranceMod();
         force = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getForceMod();
@@ -110,86 +155,68 @@ public class Character extends Sprite {
      */
     public Character(Image image, String name) {
         super(image);
-        this.name.set(name);
-        health.set(100);
-        trueAge.set(21);
-        physAge.set(21);
-        lift.set(4);
-        powerLevel.set(numbGenerator.doubles(1, 1, Double.MAX_VALUE).findFirst().getAsDouble());
+        this.name = name;
+        health = 100;
+        trueAge = 21;
+        physAge = 21;
+        lift = 4;
+        powerLevel = numbGenerator.doubles(1, 1, Double.MAX_VALUE).findFirst().getAsDouble();
     }
-
 
     public String getName() {
-        return name.get();
-    }
-
-
-    public StringProperty nameProperty() {
         return name;
     }
 
     public void setName(String name) {
-        this.name.set(name);
+        this.name = name;
     }
 
     public double getHealth() {
-        return health.get();
-    }
-
-    public DoubleProperty healthProperty() {
         return health;
     }
 
     public void setHealth(double health) {
-        this.health.set(health);
+        this.health = health;
     }
 
     public double getTrueAge() {
-        return trueAge.get();
-    }
-
-    public DoubleProperty trueAgeProperty() {
         return trueAge;
     }
 
     public void setTrueAge(double trueAge) {
-        this.trueAge.set(trueAge);
+        this.trueAge = trueAge;
     }
 
     public double getPhysAge() {
-        return physAge.get();
-    }
-
-    public DoubleProperty physAgeProperty() {
         return physAge;
     }
 
     public void setPhysAge(double physAge) {
-        this.physAge.set(physAge);
+        this.physAge = physAge;
     }
 
     public double getLift() {
-        return lift.get();
-    }
-
-    public DoubleProperty liftProperty() {
         return lift;
     }
 
     public void setLift(double lift) {
-        this.lift.set(lift);
+        this.lift = lift;
     }
 
     public double getPowerLevel() {
-        return powerLevel.get();
-    }
-
-    public DoubleProperty powerLevelProperty() {
         return powerLevel;
     }
 
     public void setPowerLevel(double powerLevel) {
-        this.powerLevel.set(powerLevel);
+        this.powerLevel = powerLevel;
+    }
+
+    public List<Item> getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(List<Item> inventory) {
+        this.inventory = inventory;
     }
 
     public double getEnergyReserves() {
@@ -360,16 +387,55 @@ public class Character extends Sprite {
         this.regenRatio = regenRatio;
     }
 
-    public Timer getRegenerationTimer() {
-        return regenerationTimer;
-    }
-
-    public void setRegenerationTimer(Timer regenerationTimer) {
-        this.regenerationTimer = regenerationTimer;
-    }
-
     public List<Property<?>> getPropertyList() {
+        SimpleStringProperty name = new SimpleStringProperty(getName());
+        SimpleDoubleProperty xLocation = new SimpleDoubleProperty(getX());
+        SimpleDoubleProperty yLocation = new SimpleDoubleProperty(getY());
+        SimpleDoubleProperty health = new SimpleDoubleProperty(getHealth());
+        SimpleDoubleProperty powerLevel = new SimpleDoubleProperty(getPowerLevel());
+        SimpleDoubleProperty physAge = new SimpleDoubleProperty(getPhysAge());
+        SimpleDoubleProperty trueAge = new SimpleDoubleProperty(getTrueAge());
+        SimpleDoubleProperty lift = new SimpleDoubleProperty(getLift());
+
+        List<Property<?>> propertyList = Arrays.asList(name, xLocation, yLocation, health, powerLevel, physAge, trueAge, lift);
+
         return propertyList;
+    }
+
+    @Override
+    public String toString() {
+        return "Character{" +
+                "name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                ", health=" + health +
+                ", trueAge=" + trueAge +
+                ", physAge=" + physAge +
+                ", lift=" + lift +
+                ", powerLevel=" + powerLevel +
+                ", inventory=" + inventory +
+                ", energyReserves=" + energyReserves +
+                ", strength=" + strength +
+                ", endurance=" + endurance +
+                ", force=" + force +
+                ", speed=" + speed +
+                ", resistance=" + resistance +
+                ", offence=" + offence +
+                ", defence=" + defence +
+                ", regeneration=" + regeneration +
+                ", recovery=" + recovery +
+                ", energyMod=" + energyMod +
+                ", strengthMod=" + strengthMod +
+                ", enduranceMod=" + enduranceMod +
+                ", powerLevelMod=" + powerLevelMod +
+                ", forceMod=" + forceMod +
+                ", speedMod=" + speedMod +
+                ", resistanceMod=" + resistanceMod +
+                ", offenceMod=" + offenceMod +
+                ", defenceMod=" + defenceMod +
+                ", recovRatio=" + recovRatio +
+                ", regenRatio=" + regenRatio +
+                ", numbGenerator=" + numbGenerator +
+                '}';
     }
 
     /**
@@ -392,7 +458,7 @@ public class Character extends Sprite {
             }
 
             if (!output.isEmpty() && notWhitespace) {
-                Text name = new Text("- " + nameProperty().get());
+                Text name = new Text("- " + getName());
                 name.getStyleClass().add("playerName");
                 localChatBox.getChildren().add(name);
                 Text trueOutput = new Text(": '" + output + "'\n");
@@ -436,7 +502,7 @@ public class Character extends Sprite {
                 Text start = new Text("* ");
                 start.setFont(roleplayFont);
                 start.setFill(Color.WHITE);
-                Text name = new Text(nameProperty().get());
+                Text name = new Text(getName());
                 name.setFont(roleplayFont);
                 name.setFill(Color.YELLOW);
                 localChatBox.getChildren().addAll(start, name);
@@ -469,7 +535,7 @@ public class Character extends Sprite {
             }
 
             if (!output.isEmpty() && notWhitespace) {
-                Text name = new Text("(OOC) " + nameProperty().get());
+                Text name = new Text("(OOC) " + getName());
                 name.setFill(Color.YELLOW);
                 name.setFont(oocFont);
                 Text trueOutput = new Text(": " + output + "\n");

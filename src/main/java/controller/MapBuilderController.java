@@ -3,13 +3,11 @@ package controller;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
@@ -17,6 +15,7 @@ import model.NodeGestures;
 import model.PannableCanvas;
 import model.SceneGestures;
 import model.Terrain;
+import service.SceneService;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -43,7 +42,16 @@ public class MapBuilderController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         Terrain rock = new Terrain("/icons/rock.png");
 
-        terrainTab.setContent(rock);
+        VBox vBox = new VBox();
+        vBox.setSpacing(10);
+
+        Button backBtn = new Button("Back to Legacy");
+        backBtn.setOnAction(event -> {
+            SceneService.switchScene(gameScrollPane.getParent(), "Main", MainController.class.getResource("/Styles.css").toString());
+        });
+
+        vBox.getChildren().addAll(rock, backBtn);
+        terrainTab.setContent(vBox);
 
         Group group = new Group();
 

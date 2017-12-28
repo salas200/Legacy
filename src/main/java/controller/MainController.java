@@ -8,6 +8,7 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
@@ -15,13 +16,20 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import model.*;
 import model.Character;
 import service.MapService;
 import service.ResourceService;
+import service.SaveFileService;
 import service.SceneService;
 
 import java.net.URL;
@@ -125,10 +133,10 @@ public class MainController implements Initializable {
         //  Generate map
         MapService.generateBaseMap(gameCanvas, "/icons/grass.png");
 
-        //  Generate terrain
-        Terrain rock =  new Terrain("/icons/rock.png");
-        MapService.spawnTerrain(gameContainer, rock, 64, 34);
-        terrainLinkedList.add(rock);
+//        //  Generate terrain
+//        Terrain rock =  new Terrain("/icons/rock.png");
+//        MapService.spawnTerrain(gameContainer, rock, 64, 34);
+//        terrainLinkedList.add(rock);
 
         //  Generate character
         character = new Character(ResourceService.loadImage("/icons/base/south_animated/0.png"), "Shyzus", "1234");
@@ -226,6 +234,27 @@ public class MainController implements Initializable {
         Verb helpVerb = new Verb("Help", "verb");
         helpVerb.setOnMouseClicked(event -> getHelp());
 
+        Verb saveVerb = new Verb("Save", "verb");
+        saveVerb.setOnMouseClicked(event -> {
+            SaveFileService.createSaveFile(character);
+            Font oocFont = Font.font("System", FontWeight.BOLD, 14);
+            Text text = new Text("Your character has been saved!\n");
+            text.setFont(oocFont);
+            text.setFill(Color.CORNFLOWERBLUE);
+            globalChatBox.getChildren().add(text);
+        });
+
+        Verb reloadSaveVerb = new Verb("Load Save", "verb");
+        reloadSaveVerb.setOnMouseClicked(event -> {
+            character = SaveFileService.readSaveFile(character.getName());
+            statsTabContent.getChildren().setAll(character.getStats());
+            Font oocFont = Font.font("System", FontWeight.BOLD, 14);
+            Text text = new Text("Your save has been loaded!\n" + character.toString());
+            text.setFont(oocFont);
+            text.setFill(Color.CORNFLOWERBLUE);
+            globalChatBox.getChildren().add(text);
+        });
+
         List<TextFlow> tabList = Arrays.asList(statsTabContent, skillsTabContent, optionsTabContent, itemsTabContent
                 , localChatBox, globalChatBox);
 
@@ -233,7 +262,7 @@ public class MainController implements Initializable {
             tab.getStyleClass().add("background");
         }
 
-        optionsTabContent.getChildren().addAll(sayVerb, roleplayVerb, oocVerb, helpVerb, speedVerb, mapBuilder);
+        optionsTabContent.getChildren().addAll(sayVerb, roleplayVerb, oocVerb, helpVerb, speedVerb, mapBuilder, saveVerb, reloadSaveVerb);
         statsTabContent.getChildren().setAll(character.getStats());
 
         animationThread = new AnimationThread("character", character, null);
@@ -307,7 +336,7 @@ public class MainController implements Initializable {
 
     @FXML
     void exit() {
-
+        System.exit(0);
     }
 
     @FXML
@@ -322,6 +351,18 @@ public class MainController implements Initializable {
 
     @FXML
     void getHelp() {
+        WebView webView = new WebView();
+        WebEngine webEngine = webView.getEngine();
+        webEngine.load(getClass().getResource("/help/Help.html").toString());
 
+        Stage dialog = new Stage();
+        dialog.initStyle(StageStyle.UTILITY);
+        Scene scene = new Scene(webView);
+        dialog.setScene(scene);
+        dialog.setMinWidth(100);
+        dialog.setMinHeight(100);
+        dialog.setMaxHeight(dialog.getHeight());
+        dialog.setMaxWidth(dialog.getWidth());
+        dialog.show();
     }
 }

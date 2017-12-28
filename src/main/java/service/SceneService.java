@@ -23,6 +23,33 @@ public class SceneService {
     /**
      * Switches a scene to the specified screen
      *
+     * @param parent   a component of the current scene
+     * @param newScene the string name of the FXML file to load with /fxml/ or .fxml
+     */
+    public static void switchScene(Parent parent, String newScene, String css) {
+        switchScene(parent, loadFXML(newScene), css);
+    }
+
+    /**
+     * Switches a scene to the specified screen
+     *
+     * @param parent a component of the current scene
+     * @param root   the new component to display
+     */
+    private static void switchScene(Parent parent, Parent root, String css) {
+        Stage stage = (Stage) parent.getScene().getWindow();
+        //use existing dimensions
+        double width = stage.getScene().getWidth();
+        double height = stage.getScene().getHeight();
+        Scene scene = new Scene(root, width, height);
+        scene.getStylesheets().add(css);
+
+        stage.setScene(scene);
+    }
+
+    /**
+     * Switches a scene to the specified screen
+     *
      * @param parent a component of the current scene
      * @param root   the new component to display
      */

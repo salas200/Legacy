@@ -14,6 +14,9 @@ public class Sprite extends ImageView {
     private double prevY;
     private Property<Image> imageProperty = new SimpleObjectProperty<>();
 
+    public Sprite() {
+    }
+
     /**
      * Allocates a new Sprite object using the given image.
      *
