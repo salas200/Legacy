@@ -272,16 +272,16 @@ public class MainController implements Initializable {
 
         gameCanvas.setOnKeyPressed(event -> {
             switch (event.getCode()) {
-                case UP:
+                case W:
                     movementThread.setGoNorth(true);
                     break;
-                case LEFT:
+                case A:
                     movementThread.setGoWest(true);
                     break;
-                case DOWN:
+                case S:
                     movementThread.setGoSouth(true);
                     break;
-                case RIGHT:
+                case D:
                     movementThread.setGoEast(true);
                     break;
             }
@@ -289,16 +289,16 @@ public class MainController implements Initializable {
 
         gameCanvas.setOnKeyReleased(event -> {
             switch (event.getCode()) {
-                case UP:
+                case W:
                     movementThread.setGoNorth(false);
                     break;
-                case LEFT:
+                case A:
                     movementThread.setGoWest(false);
                     break;
-                case DOWN:
+                case S:
                     movementThread.setGoSouth(false);
                     break;
-                case RIGHT:
+                case D:
                     movementThread.setGoEast(false);
                     break;
             }
@@ -361,8 +361,8 @@ public class MainController implements Initializable {
         dialog.setScene(scene);
         dialog.setMinWidth(100);
         dialog.setMinHeight(100);
-        dialog.setMaxHeight(dialog.getHeight());
-        dialog.setMaxWidth(dialog.getWidth());
+        dialog.setMaxHeight(500);
+        dialog.setMaxWidth(500);
         dialog.show();
     }
 }
