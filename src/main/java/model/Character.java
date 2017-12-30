@@ -1,8 +1,9 @@
 package model;
 
 import javafx.application.Platform;
-import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
@@ -66,46 +67,6 @@ public class Character extends Sprite implements Serializable{
 
     public Character() {
 
-    }
-
-    public Character(Image image) {
-        super(image);
-        this.setImage(image);
-    }
-
-    public Character(Image image, String name, String password, double health, double trueAge, double physAge, double lift, double powerLevel, List<Item> inventory, double energyReserves, double strength, double endurance, double force, double speed, double resistance, double offence, double defence, double regeneration, double recovery, double energyMod, double strengthMod, double enduranceMod, double powerLevelMod, double forceMod, double speedMod, double resistanceMod, double offenceMod, double defenceMod, double recovRatio, double regenRatio, Random numbGenerator) {
-        super(image);
-        this.setImage(image);
-        this.name = name;
-        this.password = password;
-        this.health = health;
-        this.trueAge = trueAge;
-        this.physAge = physAge;
-        this.lift = lift;
-        this.powerLevel = powerLevel;
-        this.inventory = inventory;
-        this.energyReserves = energyReserves;
-        this.strength = strength;
-        this.endurance = endurance;
-        this.force = force;
-        this.speed = speed;
-        this.resistance = resistance;
-        this.offence = offence;
-        this.defence = defence;
-        this.regeneration = regeneration;
-        this.recovery = recovery;
-        this.energyMod = energyMod;
-        this.strengthMod = strengthMod;
-        this.enduranceMod = enduranceMod;
-        this.powerLevelMod = powerLevelMod;
-        this.forceMod = forceMod;
-        this.speedMod = speedMod;
-        this.resistanceMod = resistanceMod;
-        this.offenceMod = offenceMod;
-        this.defenceMod = defenceMod;
-        this.recovRatio = recovRatio;
-        this.regenRatio = regenRatio;
-        this.numbGenerator = numbGenerator;
     }
 
     /**
@@ -586,55 +547,6 @@ public class Character extends Sprite implements Serializable{
             Logger.getGlobal().log(Level.SEVERE, "Hashing of password returned null!");
         }
         return String.format("%032X", new BigInteger(1, sha512sum));
-    }
-
-    /**
-     * ChangeListener for intersection of bounds by specified variables.
-     *
-     * @param source Source of call
-     * @param object Possible collision target
-     * @param step   Step size for movement
-     * @return ChangeListener for X & Y-Axis displacement of source and target. Specified for collision handling.
-     */
-    public ChangeListener<Number> createPosChangeListener(Sprite source, Object object, double step, double trueHeight, double trueWidth) {
-        Sprite target;
-        if (object instanceof Sprite) {
-            target = (Sprite) object;
-
-            ChangeListener<Number> checkIntersection = (ob, n, n1) -> {
-                if (source.getBoundsInParent().intersects(target.getBoundsInParent())) {
-                    if (source.getX() == target.getX() && source.getY() > target.getY()) {
-                        if (source.getY() + step > trueHeight) {
-                            source.setLocation(source.getX(), 25);
-                        } else {
-                            source.setY(source.getY() + step);
-                        }
-                    } else if (source.getX() == target.getX() && source.getY() < target.getY()) {
-                        if (source.getY() - step < 25) {
-                            source.setLocation(source.getX(), trueHeight);
-                        } else {
-                            source.setY(source.getY() - step);
-                        }
-                    } else if (source.getY() == target.getY() && source.getX() > target.getX()) {
-                        if (source.getX() + step > trueWidth) {
-                            source.setLocation(25, source.getY());
-                        } else {
-                            source.setX(source.getX() + step);
-                        }
-                    } else if (source.getY() == target.getY() && source.getX() < target.getX()) {
-                        if (source.getX() - step < 25) {
-                            source.setLocation(trueWidth, source.getY());
-                        } else {
-                            source.setX(source.getX() - step);
-                        }
-                    }
-                }
-            };
-
-            return checkIntersection;
-        } else {
-            throw new IllegalArgumentException("Object given is not of sprite instance.");
-        }
     }
 
 }

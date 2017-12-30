@@ -28,7 +28,7 @@ public class MapService {
         terrain.setLocation(x, y);
     }
 
-    public static void spawnCharacter(Group gameContainer, Character character, int x, int y) {
+    public static void spawnCharacter(Group gameContainer, Character character, double x, double y) {
         gameContainer.getChildren().add(character);
         character.setLocation(x, y);
     }

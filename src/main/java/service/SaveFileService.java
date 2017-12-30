@@ -41,18 +41,17 @@ public class SaveFileService {
         }
     }
 
-    public static Character readSaveFile(String name) {
-        Character character = null;
+    public static Character readSaveFile(Character character) {
         try (ObjectInputStream ois =
-                     new ObjectInputStream(new FileInputStream(SAVEPATHBASE + name))) {
+                     new ObjectInputStream(new FileInputStream(SAVEPATHBASE + character.getName()))) {
 
             character = (Character) ois.readObject();
 
-            Logger.getLogger(LOGGERNAME).log(Level.INFO, "Save read for " + name + ".");
+            Logger.getLogger(LOGGERNAME).log(Level.INFO, "Save read for " + character.getName() + ".");
 
             return character;
         } catch (IOException | ClassNotFoundException e) {
-            Logger.getLogger(LOGGERNAME).log(Level.WARNING, "Failed to read save for " + name + ": " + e.getMessage());
+            Logger.getLogger(LOGGERNAME).log(Level.WARNING, "Failed to read save for " + character.getName() + ": " + e.getMessage());
         }
 
         return character;

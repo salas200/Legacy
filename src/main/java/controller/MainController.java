@@ -107,7 +107,7 @@ public class MainController implements Initializable {
     private double step = 1;
 
     private LinkedList<Terrain> terrainLinkedList = new LinkedList<Terrain>();
-
+    
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         //  Set canvas size
@@ -143,44 +143,13 @@ public class MainController implements Initializable {
         MapService.spawnCharacter(gameContainer, character, 0, 0);
 
         // Give each property in the propertyList of the player a changeListener (NOTE ONLY PROPERTIES VISIBLE TO THE PLAYER)
-        for (Property property : character.getPropertyList()) {
-            property.addListener((observable, oldValue, newValue) -> statsTabContent.getChildren().setAll(character.getStats()));
-        }
+        addStatDisplayPropertyCL(character, statsTabContent);
 
         // Resize scrollpane length as their chatbox height increases.
         oocScrollPane.vvalueProperty().bind(globalChatBox.heightProperty());
         chatScrollPane.vvalueProperty().bind(localChatBox.heightProperty());
 
-        character.xProperty().addListener((observable, oldValue, newValue) -> {
-            Text statLocation = new Text("Location: (" + newValue.intValue() + ", " + (int) character.getY() + ")\n");
-            statLocation.setFill(Color.WHITE);
-            statsTabContent.getChildren().set(1, statLocation);
-
-            if (newValue.intValue() + 32 >= (gameScrollPane.getMaxWidth() / 2) && newValue.intValue() < canvasWidth) {
-                //  Set to center of screen
-                gameScrollPane.setHvalue((newValue.intValue() - (gameScrollPane.getMaxWidth() / 2)) * 1.6);
-
-            } else {
-                gameScrollPane.setHvalue(0);
-            }
-
-        });
-
-        character.yProperty().addListener((observable, oldValue, newValue) -> {
-            Text statLocation = new Text("Location: (" + (int) character.getX() + ", " + newValue.intValue() + ")\n");
-            statLocation.setFill(Color.WHITE);
-            statsTabContent.getChildren().set(1, statLocation);
-
-            if (newValue.intValue() + 32 >= (gameScrollPane.getMaxHeight() / 2) && newValue.intValue() < canvasHeight) {
-                //  Set to center of screen
-                gameScrollPane.setVvalue((newValue.intValue() - (gameScrollPane.getMaxHeight() / 2)) * 1.6);
-
-            } else {
-                gameScrollPane.setVvalue(0);
-            }
-
-        });
-
+        addMovementCL(character, statsTabContent);
 
         //Intro message
         introLocal = new Text("Welcome to the Legacy Demo!\n");
@@ -246,8 +215,23 @@ public class MainController implements Initializable {
 
         Verb reloadSaveVerb = new Verb("Load Save", "verb");
         reloadSaveVerb.setOnMouseClicked(event -> {
-            character = SaveFileService.readSaveFile(character.getName());
+            gameContainer.getChildren().remove(character);
+            Character tmp = character;
+            character = null;
+            character = SaveFileService.readSaveFile(tmp);
+            MapService.spawnCharacter(gameContainer, character, 500, 500);
             statsTabContent.getChildren().setAll(character.getStats());
+            addMovementCL(character, statsTabContent);
+            character.setImage(ResourceService.loadImage("/icons/base/south_animated/0.png"));
+
+            animationThread.interrupt();
+            animationThread = new AnimationThread("character", character, null);
+            animationThread.start();
+
+            movementThread.stop();
+            movementThread = new MovementThread(character, terrainLinkedList ,animationThread, step, height, width);
+            movementThread.start();
+
             Font oocFont = Font.font("System", FontWeight.BOLD, 14);
             Text text = new Text("Your save has been loaded!\n" + character.toString());
             text.setFont(oocFont);
@@ -283,6 +267,10 @@ public class MainController implements Initializable {
                     break;
                 case D:
                     movementThread.setGoEast(true);
+                    break;
+                case G:
+                    gameContainer.getChildren().remove(character);
+                    character = null;
                     break;
             }
         });
@@ -323,6 +311,44 @@ public class MainController implements Initializable {
         Platform.runLater(gameCanvas::requestFocus);
     }
 
+    void addStatDisplayPropertyCL(Character character, TextFlow textFlow) {
+        // Give each property in the propertyList of the player a changeListener (NOTE ONLY PROPERTIES VISIBLE TO THE PLAYER)
+        for (Property property : character.getPropertyList()) {
+            property.addListener((observable, oldValue, newValue) -> textFlow.getChildren().setAll(character.getStats()));
+        }
+    }
+
+    void addMovementCL(Character character, TextFlow textFlow) {
+        character.xProperty().addListener((observable, oldValue, newValue) -> {
+            Text statLocation = new Text("Location: (" + newValue.intValue() + ", " + (int) character.getY() + ")\n");
+            statLocation.setFill(Color.WHITE);
+            textFlow.getChildren().set(1, statLocation);
+
+            if (newValue.intValue() + 32 >= (gameScrollPane.getMaxWidth() / 2) && newValue.intValue() < canvasWidth) {
+                //  Set to center of screen
+                gameScrollPane.setHvalue((newValue.intValue() - (gameScrollPane.getMaxWidth() / 2)) * 1.6);
+
+            } else {
+                gameScrollPane.setHvalue(0);
+            }
+
+        });
+
+        character.yProperty().addListener((observable, oldValue, newValue) -> {
+            Text statLocation = new Text("Location: (" + (int) character.getX() + ", " + newValue.intValue() + ")\n");
+            statLocation.setFill(Color.WHITE);
+            textFlow.getChildren().set(1, statLocation);
+
+            if (newValue.intValue() + 32 >= (gameScrollPane.getMaxHeight() / 2) && newValue.intValue() < canvasHeight) {
+                //  Set to center of screen
+                gameScrollPane.setVvalue((newValue.intValue() - (gameScrollPane.getMaxHeight() / 2)) * 1.6);
+
+            } else {
+                gameScrollPane.setVvalue(0);
+            }
+
+        });
+    }
 
     @FXML
     void reconnect() {
