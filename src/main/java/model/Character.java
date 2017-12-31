@@ -63,6 +63,9 @@ public class Character extends Sprite implements Serializable{
     private double recovRatio;
     private double regenRatio;
 
+    private double lastX;
+    private double lastY;
+
     private Random numbGenerator = new Random();
 
     public Character() {
@@ -91,7 +94,7 @@ public class Character extends Sprite implements Serializable{
         strengthMod = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble();
         enduranceMod = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble();
         forceMod = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble();
-        speedMod = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble();
+        speedMod = numbGenerator.doubles(1, 1, 1.5).findFirst().getAsDouble();
         resistanceMod = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble();
         offenceMod = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble();
         defenceMod = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble();
@@ -102,7 +105,7 @@ public class Character extends Sprite implements Serializable{
         strength = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getStrengthMod();
         endurance = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getEnduranceMod();
         force = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getForceMod();
-        speed = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getSpeedMod();
+        speed = numbGenerator.doubles(1, 1, 5).findFirst().getAsDouble() * getSpeedMod();
         resistance = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getResistanceMod();
         offence = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getOffenceMod();
         defence = numbGenerator.doubles(1, 1, 10).findFirst().getAsDouble() * getDefenceMod();
@@ -122,6 +125,13 @@ public class Character extends Sprite implements Serializable{
         physAge = 21;
         lift = 4;
         powerLevel = numbGenerator.doubles(1, 1, Double.MAX_VALUE).findFirst().getAsDouble();
+    }
+
+    @Override
+    public void setLocation(double x, double y) {
+        super.setLocation(x, y);
+        lastY = y;
+        lastX = x;
     }
 
     public String getName() {
@@ -348,6 +358,14 @@ public class Character extends Sprite implements Serializable{
         this.regenRatio = regenRatio;
     }
 
+    public double getLastX() {
+        return lastX;
+    }
+
+    public double getLastY() {
+        return lastY;
+    }
+
     public List<Property<?>> getPropertyList() {
         SimpleStringProperty name = new SimpleStringProperty(getName());
         SimpleDoubleProperty xLocation = new SimpleDoubleProperty(getX());
@@ -395,6 +413,8 @@ public class Character extends Sprite implements Serializable{
                 ", defenceMod=" + defenceMod +
                 ", recovRatio=" + recovRatio +
                 ", regenRatio=" + regenRatio +
+                ", lastX=" + lastX +
+                ", lastY=" + lastY +
                 ", numbGenerator=" + numbGenerator +
                 '}';
     }

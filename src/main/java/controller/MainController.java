@@ -219,9 +219,9 @@ public class MainController implements Initializable {
             Character tmp = character;
             character = null;
             character = SaveFileService.readSaveFile(tmp);
-            MapService.spawnCharacter(gameContainer, character, 500, 500);
-            statsTabContent.getChildren().setAll(character.getStats());
             addMovementCL(character, statsTabContent);
+            MapService.spawnCharacter(gameContainer, character, character.getLastX(), character.getLastY());
+            statsTabContent.getChildren().setAll(character.getStats());
             character.setImage(ResourceService.loadImage("/icons/base/south_animated/0.png"));
 
             animationThread.interrupt();
@@ -230,10 +230,11 @@ public class MainController implements Initializable {
 
             movementThread.stop();
             movementThread = new MovementThread(character, terrainLinkedList ,animationThread, step, height, width);
+            movementThread.setStep(character.getSpeed());
             movementThread.start();
 
             Font oocFont = Font.font("System", FontWeight.BOLD, 14);
-            Text text = new Text("Your save has been loaded!\n" + character.toString());
+            Text text = new Text("Your save has been loaded!\n");
             text.setFont(oocFont);
             text.setFill(Color.CORNFLOWERBLUE);
             globalChatBox.getChildren().add(text);
@@ -293,6 +294,7 @@ public class MainController implements Initializable {
         });
 
         movementThread.start();
+        movementThread.setStep(character.getSpeed());
 
         gameCanvas.setOnMouseClicked(event -> Platform.runLater(gameCanvas::requestFocus));
 
